@@ -329,4 +329,6 @@ type Transfers {
   time: String!
   player_in: Player
   player_out: Player
+  last_ddl: String
+  cur_ddl: String
 }

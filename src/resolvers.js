@@ -1,6 +1,8 @@
 const NodeCache = require('node-cache');
 const axios = require('axios');
 
+const VDate = require('./vdate')
+
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 });
 const baseURI = 'https://fantasy.premierleague.com/api';
 
@@ -261,8 +263,33 @@ const resolvers = {
   },
 
   Transfers: {
+    time: (parent) => {
+      return new VDate(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss')
+    }, 
     player_in: (parent) => getPlayer(parent.element_in),
-    player_out: (parent) => getPlayer(parent.element_out)
+    player_out: (parent) => getPlayer(parent.element_out),
+    cur_ddl: async (parent) => {
+      let cachedEvents = cache.get('events');
+      if (cached == undefined) {
+        let json = await request(`${baseURI}/bootstrap-static/`)
+        cache.set('events', json);
+        cachedEvents = json;
+      }
+      let curEvent = cachedEvents.find(item => item.id === parent.event)
+      let cur_ddl = curEvent ? curEvent.deadline_time : 0
+      return new VDate(new Date(cur_ddl).getTime()).format('YYYY-MM-DD HH:mm:ss')
+    },
+    last_ddl: async (parent) => {
+      let cachedEvents = cache.get('events');
+      if (cached == undefined) {
+        let json = await request(`${baseURI}/bootstrap-static/`)
+        cache.set('events', json);
+        cachedEvents = json;
+      }
+      let lastEvent = cachedEvents.find(item => item.id === parent.event - 1)
+      let last_ddl = lastEvent ? lastEvent.deadline_time : 0
+      return new VDate(new Date(last_ddl).getTime()).format('YYYY-MM-DD HH:mm:ss')
+    }
   }
 };
 
