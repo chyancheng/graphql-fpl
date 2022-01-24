@@ -125,9 +125,11 @@ const resolvers = {
       const { id } = args;
       return await request(`${baseURI}/entry/${id}/`);
     },
+    
 
     entryHistory: async (_, args) => {
-      return await request(`${baseURI}/entry/${args.id}/history`);
+      let data = await request(`${baseURI}/entry/${args.id}/history/`);
+      return data
     },
 
     live: async (_, args) => {
@@ -143,6 +145,10 @@ const resolvers = {
     playerSummary: async (_, args) => {
       return await request(`${baseURI}/element-summary/${args.id}/`)
     },
+
+    transfers: async (_, args) => {
+      return await request(`${baseURI}/entry/${args.id}/transfers/`)
+    }
   },
 
   Team: {
@@ -253,6 +259,11 @@ const resolvers = {
       }));
     },
   },
+
+  Transfers: {
+    player_in: (parent) => getPlayer(parent.element_in),
+    player_out: (parent) => getPlayer(parent.element_out)
+  }
 };
 
 module.exports = resolvers;

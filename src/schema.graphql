@@ -9,6 +9,7 @@ type Query {
   live(event: Int!, id: ID!): Live!
   picks(entry: Int!, event: Int!): Picks!
   playerSummary(id: ID!): PlayerSummary
+  transfers(id: ID!): [Transfers!]
 }
 
 type Event {
@@ -183,7 +184,7 @@ type EventHistory {
 
 type Picks {
   active_chip: String
-  automatic_subs: [Player]
+  automatic_subs: [AutoSubsInfo]
   entry_history: EventHistory
   picks: [Pick]
 }
@@ -312,4 +313,20 @@ type PastSeason {
   creativity: String!
   threat: String!
   ict_index: String!
+}
+
+type AutoSubsInfo {
+  element_in: Int!
+  element_out: Int!
+}
+
+type Transfers {
+  element_in: Int!
+  element_out: Int!
+  element_in_cost: Int!
+  element_out_cost: Int!
+  event: Int!
+  time: String!
+  player_in: Player
+  player_out: Player
 }
