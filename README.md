@@ -22,20 +22,14 @@ A GraphQL wrapper for the Fantasy Premier League API, using node and graphql-yog
 
 ## Usage
 
-1. Download or clone this repository
-
-```
-git clone https://github.com/lastmaj/fpl-graphql.git
-```
-
-2. Move to the project directory and install dependencies
+1. Move to the project directory and install dependencies
 
 ```
 cd fpl-graphql
 npm install
 ```
 
-3. Start the server
+2. Start the server
 
 ```
 npm start
