@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
       "baseUrl": ".",
-      "outDir": "dist",
+      "outDir": "./dist",
       "declaration": true,
       "sourceMap": false,
       "target": "es5",
@@ -23,7 +23,6 @@
       "jsx": "react",
       "lib": ["esnext", "dom.iterable", "dom"],
       "types": ["node"],
-      "rootDir": "."
   },
   "include": ["src"]
 }
