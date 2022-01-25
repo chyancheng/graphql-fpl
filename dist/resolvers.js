@@ -50,24 +50,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolvers = void 0;
 var node_cache_1 = __importDefault(require("node-cache"));
 var axios_1 = __importDefault(require("axios"));
 var vdate_1 = __importDefault(require("./util/vdate"));
 var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
 var baseURI = 'https://fantasy.premierleague.com/api';
 var request = function (url) {
-    return axios_1.default
-        .get(url, {
-        headers: {
-            'Content-Type': 'application/json',
-            'User-Agent': 'graphql-fpl',
-        },
-    })
-        .then(function (response) {
-        console.info("request: ".concat(url));
-        return response.data;
-    });
+    var cachedData = cache.get(url);
+    if (cachedData == undefined) {
+        return axios_1.default
+            .get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'graphql-fpl',
+            },
+        })
+            .then(function (response) {
+            console.info("request: ".concat(url));
+            cache.set(url, response.data);
+            return response.data;
+        });
+    }
+    else {
+        return new Promise(function (resolve) {
+            resolve(cachedData);
+        });
+    }
 };
 // get bootstrap info and cached
 request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
@@ -151,11 +159,10 @@ var getCachedEvent = function (id) { return __awaiter(void 0, void 0, void 0, fu
         }
     });
 }); };
-exports.resolvers = {
+var resolvers = {
     Query: {
         event: function (_, args) {
-            var id = args.id;
-            return getCachedEvent(id);
+            return getCachedEvent(args.id);
         },
         events: function () {
             var cached = cache.get('events');
@@ -283,15 +290,13 @@ exports.resolvers = {
             var elements;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        console.log(parent);
-                        return [4 /*yield*/, getEventLive(args.event)];
+                    case 0: return [4 /*yield*/, getEventLive(args.event)];
                     case 1:
                         elements = _a.sent();
                         return [2 /*return*/, elements.find(function (el) { return el.id == parent.id; })];
                 }
             });
-        }); }
+        }); },
     },
     Event: {
         most_selected: function (parent) { return getPlayer(parent.most_selected); },
@@ -316,6 +321,7 @@ exports.resolvers = {
     },
     EntryHistory: {
         current: function (parent) { return parent.current; },
+        chips: function (parent) { return parent.chips; },
     },
     EventHistory: {
         event: function (parent) {
@@ -323,7 +329,7 @@ exports.resolvers = {
             return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
                 return json.events.find(function (g) { return g.id == id; });
             });
-        },
+        }
     },
     Live: {
         player: function (parent) { return getPlayer(parent.id); },
@@ -407,4 +413,4 @@ exports.resolvers = {
         }); },
     },
 };
-exports.default = exports.resolvers;
+exports.default = resolvers;

@@ -6,17 +6,25 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
 const baseURI = 'https://fantasy.premierleague.com/api'
 
 const request = (url) => {
-    return axios
-        .get(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'graphql-fpl',
-            },
-        })
-        .then((response) => {
-            console.info(`request: ${url}`)
-            return response.data
-        })
+    let cachedData = cache.get(url)
+    if (cachedData == undefined) {
+        return axios
+            .get(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'graphql-fpl',
+                },
+            })
+            .then((response) => {
+                console.info(`request: ${url}`)
+                cache.set(url, response.data)
+                return response.data
+            })
+    } else {
+        return new Promise((resolve) => {
+            resolve(cachedData)
+        }) 
+    }
 }
 
 // get bootstrap info and cached
@@ -86,11 +94,10 @@ const getCachedEvent: any = async (id) => {
     return cached.find((g) => g.id == id)
 }
 
-export const resolvers = {
+const resolvers = {
     Query: {
         event: (_, args) => {
-            const { id } = args
-            return getCachedEvent(id)
+            return getCachedEvent(args.id)
         },
 
         events: () => {
@@ -194,10 +201,9 @@ export const resolvers = {
     Player: {
         team: (parent) => getTeam(parent.team),
         live: async (parent, args) => {
-            console.log(parent)
             let elements = await getEventLive(args.event)
             return elements.find((el) => el.id == parent.id)
-        }
+        },
     },
 
     Event: {
@@ -224,6 +230,7 @@ export const resolvers = {
 
     EntryHistory: {
         current: (parent) => parent.current,
+        chips: (parent) => parent.chips,
     },
 
     EventHistory: {
@@ -232,7 +239,7 @@ export const resolvers = {
             return request(`${baseURI}/bootstrap-static/`).then((json) =>
                 json.events.find((g) => g.id == id)
             )
-        },
+        }
     },
 
     Live: {

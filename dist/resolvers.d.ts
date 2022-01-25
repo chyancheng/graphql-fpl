@@ -1,4 +1,4 @@
-export declare const resolvers: {
+declare const resolvers: {
     Query: {
         event: (_: any, args: any) => any;
         events: () => any[] | Promise<any>;
@@ -42,6 +42,7 @@ export declare const resolvers: {
     };
     EntryHistory: {
         current: (parent: any) => any;
+        chips: (parent: any) => any;
     };
     EventHistory: {
         event: (parent: any) => Promise<any>;
