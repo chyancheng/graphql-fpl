@@ -205,7 +205,7 @@ var resolvers = {
                     case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.id, "/history/"))];
                     case 1:
                         data = _a.sent();
-                        return [2 /*return*/, data];
+                        return [2 /*return*/, __assign(__assign({}, data), { teamId: args.id })];
                 }
             });
         }); },
@@ -320,7 +320,11 @@ var resolvers = {
         },
     },
     EntryHistory: {
-        current: function (parent) { return parent.current; },
+        current: function (parent) {
+            return parent.current.map(function (item) {
+                return __assign(__assign({}, item), { teamId: parent.teamId });
+            });
+        },
         chips: function (parent) { return parent.chips; },
     },
     EventHistory: {
@@ -329,7 +333,18 @@ var resolvers = {
             return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
                 return json.events.find(function (g) { return g.id == id; });
             });
-        }
+        },
+        transfers: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
+            var data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.teamId, "/transfers/"))];
+                    case 1:
+                        data = _a.sent();
+                        return [2 /*return*/, data.filter(function (item) { return item.event === parent.event; })];
+                }
+            });
+        }); },
     },
     Live: {
         player: function (parent) { return getPlayer(parent.id); },

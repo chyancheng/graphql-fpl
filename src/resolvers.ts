@@ -23,7 +23,7 @@ const request = (url) => {
     } else {
         return new Promise((resolve) => {
             resolve(cachedData)
-        }) 
+        })
     }
 }
 
@@ -134,7 +134,7 @@ const resolvers = {
 
         entryHistory: async (_, args) => {
             let data = await request(`${baseURI}/entry/${args.id}/history/`)
-            return data
+            return { ...data, teamId: args.id }
         },
 
         live: async (_, args) => {
@@ -229,7 +229,11 @@ const resolvers = {
     },
 
     EntryHistory: {
-        current: (parent) => parent.current,
+        current: (parent) => {
+            return parent.current.map((item) => {
+                return { ...item, teamId: parent.teamId }
+            })
+        },
         chips: (parent) => parent.chips,
     },
 
@@ -239,7 +243,11 @@ const resolvers = {
             return request(`${baseURI}/bootstrap-static/`).then((json) =>
                 json.events.find((g) => g.id == id)
             )
-        }
+        },
+        transfers: async (parent) => {
+            let data = await request(`${baseURI}/entry/${parent.teamId}/transfers/`)
+            return data.filter((item) => item.event === parent.event)
+        },
     },
 
     Live: {

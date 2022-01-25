@@ -46,6 +46,7 @@ declare const resolvers: {
     };
     EventHistory: {
         event: (parent: any) => Promise<any>;
+        transfers: (parent: any) => Promise<any>;
     };
     Live: {
         player: (parent: any) => any;

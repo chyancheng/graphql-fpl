@@ -189,6 +189,7 @@ type EventHistory {
     event_transfers: Int!
     event_transfer_cost: Int!
     points_on_bench: Int!
+    transfers: [Transfers]
 }
 
 type Picks {
