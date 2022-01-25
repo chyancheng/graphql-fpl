@@ -21,9 +21,10 @@ let pad = function (str, len, fill, pre) {
 //
 let weeks = ["日", "一", "二", "三", "四", "五", "六"];
 let reg = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z)?((\+|-)?\d{1,2}:00)?$/;
-class VDate {
-    //ignoreNegative 表示是否忽略负数日期
-    constructor(date, ignoreNegative = true) {
+export default class VDate {
+    // ignoreNegative 表示是否忽略负数日期
+    private date: Date = new Date('')
+    constructor(date?, ignoreNegative = true) {
         /**
          * 在date为空和毫秒值时会自动处理时区问题
          * 如果需要强制转换为北京时区，可以使用toBJZone方法
@@ -40,16 +41,16 @@ class VDate {
             } else if (/^\+?\d+$/.test(date)) {
                 date = VDate.handleZone(date)
             } else if (typeof date === 'object' && date instanceof VDate) {
-                return (this.date = date)
+                return (date)
             }
         }
         date = date || defaultDate
-        //处理date.parse在ios下缺少dd时的兼容性问题
+        // 处理date.parse在ios下缺少dd时的兼容性问题
         if (typeof date === 'string') {
             let regtime = /^(\d{4})\-?(\d{1,2})(?:\-(\d{1,2}))?/i
             if (date.match(regtime)) {
-                date = date.replace(regtime, (str, $1, $2, $3) => {
-                    //如果只有yyyy-mm，需要补充dd，否则在safari下会报错
+                date = date.replace(regtime, (_, $1, $2, $3) => {
+                    // 如果只有yyyy-mm，需要补充dd，否则在safari下会报错
                     return `${$1}/${$2 || '01'}/${$3 || '01'}`
                 })
             }
@@ -115,7 +116,7 @@ class VDate {
      */
     addYear(n) {
         n = n || 0
-        this.date.setYear(this.date.getFullYear() + n)
+        this.date.setFullYear(this.date.getFullYear() + n)
         return this
     }
     /**
@@ -128,15 +129,15 @@ class VDate {
     /**
      * @description 设置当前时间的小时，分，秒
      */
-    setHours() {
-        this.date.setHours.apply(this.date, arguments)
+    setHours(...args) {
+        this.date.setHours.apply(this.date, args)
         return this
     }
     /**
      * @description 设置当前时间分 秒 毫秒
      */
-    setMinutes() {
-        this.date.setMinutes.apply(this.date, arguments)
+    setMinutes(...args) {
+        this.date.setMinutes.apply(this.date, args)
         return this
     }
     /**
@@ -165,17 +166,22 @@ class VDate {
      * @param {String} format
      * @returns {String}
      */
-    format(format) {
+    format(format?) {
         // format = format || 'yyyy-mm-dd';
         // return moment(this.date.valueOf()).format(format||'YYYY-MM-DD')
         let date = this.date
         format = format || 'YYYY-MM-DD'
         return format.replace(/Y+|M+|D+|H+|m+|s+|w+/g, function (match) {
-            let firstChar = match.substr(0, 1),
-                len = match.length
+            let firstChar = match.substr(0, 1)
+            let len = match.length
             switch (firstChar) {
                 case 'Y':
                     return date
+                        .getFullYear()
+                        .toString()
+                        .substr(4 - len)
+                case 'y':
+                        return date
                         .getFullYear()
                         .toString()
                         .substr(4 - len)
@@ -184,6 +190,8 @@ class VDate {
                 case 'D':
                     return pad(date.getDate(), len, '0', true)
                 case 'H':
+                    return pad(date.getHours(), len, '0', true)
+                case 'h':
                     return pad(date.getHours(), len, '0', true)
                 case 'm':
                     return pad(date.getMinutes(), len, '0', true)
@@ -200,13 +208,26 @@ class VDate {
      * @return {Number} 月数
      */
     diffMonth(date) {
-        let curY = parseInt(this.format('YYYY'), 10),
-            curM = parseInt(this.format('MM'), 10),
-            cdate = new VDate(date),
-            cdateY = parseInt(cdate.format('YYYY'), 10),
-            cdateM = parseInt(cdate.format('MM'), 10)
+        let curY = parseInt(this.format('YYYY'), 10)
+        let curM = parseInt(this.format('MM'), 10)
+        let cdate = new VDate(date)
+        let cdateY = parseInt(cdate.format('YYYY'), 10)
+        let cdateM = parseInt(cdate.format('MM'), 10)
 
         return (cdateY - curY) * 12 + (cdateM - curM)
+    }
+
+    /**
+    * @description 返回输入Date的相差的年份数
+    * @param {Date} 要计算的时间
+    * @return {Number} 年数
+    */
+    diffYear(date){
+        let curY = parseInt(this.format('YYYY'), 10)
+        let cdate = new VDate(date)
+        let cdateY = parseInt(cdate.format('YYYY'), 10)
+
+        return cdateY - curY
     }
 
     /**
@@ -216,15 +237,8 @@ class VDate {
     isValid() {
         return this.date && !isNaN(this.date.getTime())
     }
-}
-//静态方法
-Object.assign(VDate, {
-    /**
-     * @description 格式化
-     *  @static
-     * @param {isNative} 是否原生Date or vdate
-     */
-    parse(value, isNative, ignoreNegative) {
+
+    public static parse(value: any, isNative?: boolean, ignoreNegative?) : any { 
         if (typeof value === 'object') {
             if (value instanceof VDate) {
                 value = value.valueOf()
@@ -233,44 +247,44 @@ Object.assign(VDate, {
         }
         value += ''
         if (value.indexOf('Date') > -1) {
-            //服务下发的 "\/Date(1482394964000+0800)\/" 转换为 vdate
+            // 服务下发的 "\/Date(1482394964000+0800)\/" 转换为 vdate
             value = value.match(/((\+|-)?\d+)/)[0]
         } else if (reg.test(value)) {
-            //服务下发的 "2019-03-06T13:30:00.000+08:00" 转换为 vdate
+            // 服务下发的 "2019-03-06T13:30:00.000+08:00" 转换为 vdate
             value = VDate.transformTimeStampISO8601(value)
         }
         if (!isNaN(value)) {
-            value = parseInt(value)
+            value = parseInt(value, 10)
         }
-        //2017-10-01 or 2017/10/01 类型
+        // 2017-10-01 or 2017/10/01 类型
         // if (typeof value === 'string') {
         //     value = value.replace(/[-]/g, "/");
         // }
-        //timespan类型
+        // timespan类型
         return isNative ? new VDate(value, ignoreNegative).valueOf() : new VDate(value, ignoreNegative)
-    },
+    }
     /**
      * 返回两个日期相差分钟数
      * @param ds1
      * @param ds2
      * @returns {number}
      */
-    minuteDiff(ds1, ds2) {
-        let d1 = VDate.parse(ds1, true)
-        let d2 = VDate.parse(ds2, true)
+    public static minuteDiff(ds1, ds2) {
+        let d1 = Number(VDate.parse(ds1, true))
+        let d2 = Number(VDate.parse(ds2, true))
         return (d2 - d1) / 60000
-    },
+    }
     /**
      * 返回两个日期相差小时数
      * @param ds1
      * @param ds2
      * @returns {number}
      */
-    hourDiff(ds1, ds2) {
-        let d1 = VDate.parse(ds1, true)
-        let d2 = VDate.parse(ds2, true)
+    public static hourDiff(ds1, ds2) {
+        let d1 = Number(VDate.parse(ds1, true))
+        let d2 = Number(VDate.parse(ds2, true))
         return (d2 - d1) / 3600000
-    },
+    }
     /**
      * 返回两个日期相差的天数
      * @static
@@ -278,13 +292,15 @@ Object.assign(VDate, {
      * @param {String} ds2  日期2
      * @returns {Number} num 相差天数
      */
-    dayDiff(ds1, ds2) {
+    public static dayDiff(ds1, ds2) {
         let d1 = VDate.parse(ds1, true)
         let d2 = VDate.parse(ds2, true)
         d1.setHours(0, 0, 0, 0)
         d2.setHours(0, 0, 0, 0)
-        return parseInt((d2 - d1) / 86400000)
-    },
+        let cd1 = Number(d1)
+        let cd2 = Number(d2)
+        return (cd2 - cd1) / 86400000
+    }
     /**
      * 计算两个时间的相隔月份数
      * @static
@@ -292,10 +308,23 @@ Object.assign(VDate, {
      * @param d2
      * @returns {Number|*}
      */
-    diffMonth(d1, d2) {
+    public static diffMonth(d1, d2) {
         d1 = new VDate(d1)
         return d1.diffMonth(d2)
-    },
+    }
+
+    /**
+     * 计算两个时间的相隔年份数
+     * @static
+     * @param d1
+     * @param d2
+     * @returns {Number|*}
+     */
+    public static diffYear(d1, d2) {
+        d1 = new VDate(d1)
+        return d1.diffYear(d2)
+    }
+
     /**
      * 判断一个日期是否在一个时间区间内
      * @static
@@ -304,42 +333,46 @@ Object.assign(VDate, {
      * @param {String} time  时间
      * @returns {Boolean} true、false 在 or 不在
      */
-    timeRange(sTime, eTime, time) {
-        // 时间可为时间戳格式，也可为‘YYYY-MM-DD’格式
-        let test1 = VDate.dayDiff(sTime, time)
-        let test2 = VDate.dayDiff(time, eTime)
-        return test1 >= 0 && test2 >= 0
-    },
+    public static timeRange(sTime, eTime, time) {
+       // 时间可为时间戳格式，也可为‘YYYY-MM-DD’格式
+       let  test1 = VDate.dayDiff(sTime, time)
+       let test2 = VDate.dayDiff(time, eTime)
+       if(test1 >= 0 && test2 >= 0) {
+           return true
+       } else {
+           return false
+       }
+    }
     /**
      * 日期类型格式化为指定字符串
      * @static
      * @param {String} str
      * @returns {String|*}
      */
-    format: function (date, str, ignoreNegative) {
+    public static format(date, str, ignoreNegative?) {
         date = this.parse(date, true, ignoreNegative)
         return new VDate(date, ignoreNegative).format(str)
-    },
+    }
     /**
-     *@static
-     *param {number} timeStamp
-     *+0800接口返回的时区不准确，默认北京时区
-     *做时区offset
-     **/
-    handleZone: function (timeStamp) {
+     * @static
+     * param {number} timeStamp
+     * +0800接口返回的时区不准确，默认北京时区
+     * 做时区offset
+     */
+    public static handleZone(timeStamp) {
         if (!timeStamp || isNaN(timeStamp)) {
             return timeStamp
         }
-        var defaultTimeZone = 8 * 3600 * 1000 //BJ
-        var timezoneOffset = new Date().getTimezoneOffset()
+        let defaultTimeZone = 8 * 3600 * 1000 // BJ
+        let timezoneOffset = new Date().getTimezoneOffset()
         return +timeStamp + timezoneOffset * 60000 + defaultTimeZone
-    },
+    }
     /**
-     *转换为js可识别的时间戳
-     *@eg transform("/Date(1395331200000+0800)/") => 1395331200000
-     **/
-    transformTimeStamp: function (dateStr) {
-        var match = dateStr.match(/^\/Date\(-?(\d+)(\+|-)\d+\)\/$/)
+     * 转换为js可识别的时间戳
+     * @eg transform("/Date(1395331200000+0800)/") => 1395331200000
+     */
+    public static transformTimeStamp(dateStr) {
+        let match = dateStr.match(/^\/Date\(-?(\d+)(\+|-)\d+\)\/$/)
         if (match) {
             return VDate.handleZone(match[1])
         } else if (dateStr.match(/^(\d{4})\-?(\d{1,2})(?:\-(\d{1,2}))?/i)) {
@@ -347,14 +380,14 @@ Object.assign(VDate, {
         } else {
             return dateStr
         }
-    },
+    }
     /**
      * 转换Java服务输出的日期格式（ISO 8601）为时间戳
      * 2019-03-06T13:30:00.000+08:00 => 1551850200000
      * @param dateStr
      * @returns {*}
      */
-    transformTimeStampISO8601: function (dateStr) {
+    public static transformTimeStampISO8601(dateStr) {
         let matches = dateStr.match(reg)
         if (matches && matches.length) {
             let year = matches[1]
@@ -367,12 +400,20 @@ Object.assign(VDate, {
             return date.getTime() - 480 * 60000 - new Date().getTimezoneOffset() * 60000
         }
         return null
-    },
-    transformServerDate: function (timeStamp) {
+    }
+    
+    public static transformServerDate(timeStamp) {
         timeStamp = VDate.handleZone(timeStamp);
         return "/Date(" + timeStamp + "+0800)/";
     }
 
-})
+    public static isCrossYear(date, ignoreNegative?){
 
-module.exports = VDate
+        date = this.parse(date, true, ignoreNegative)
+
+        let diffYear = VDate.diffYear(date,new VDate())
+
+        return diffYear != 0
+    }
+
+}
