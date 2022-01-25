@@ -2,67 +2,61 @@ export default class VDate {
     private date;
     constructor(date?: any, ignoreNegative?: boolean);
     /**
-     * @description 当前时间加n天
+     * @description add n days to current time
      * @method addDay
      * @param {Number} n
      * @returns {vDate}
      */
     addDay(n: any): this;
     /**
-     * @description 当前时间加n月
+     * @description add n months to current time
      * @param {Number} n
      * @returns {vDate}
      */
     addMonth(n: any): this;
     /**
-     * @description 当前时间加n个小时
+     * @description add n hours to current time
      * @param {Number} n
      * @returns {vDate}
      */
     addHours(n: any): this;
     /**
-     * 当前时间基础上增加n分
+     * @description add n minutes to current time
      * @param {Number} n
      * @returns {vDate}
      */
     addMinutes(n: any): this;
     /**
-     * 当前时间基础上增加n秒
+     * @description add n seconds to current time
      * @param {Number} n
      * @returns {vDate}
      */
     addSeconds(n: any): this;
     /**
-     * @description 当前时间加n年
+     * @description add n years to current time
      * @param {Number} n
      * @returns {vDate}
      */
     addYear(n: any): this;
     /**
-     * 转换为北京时区
-     * return {VDate} 新的Vdate实例
+     * @description convert to Beijing timezone
+     * @return {VDate}
      */
     toBJZone(): VDate;
-    /**
-     * @description 设置当前时间的小时，分，秒
-     */
     setHours(...args: any[]): this;
-    /**
-     * @description 设置当前时间分 秒 毫秒
-     */
     setMinutes(...args: any[]): this;
     /**
-     * 获得原生Date对象
+     * @description get the native Date object
      * @returns {Date}
      */
     valueOf(): Date;
     /**
-     * 获得毫秒数
-     * @returns {number} 毫秒
+     * @description get timestamp
+     * @returns {number}
      */
     getTime(): number;
     /**
-     * 获得utc时间字符串
+     * @description get utc string
      */
     toString(): string;
     /**
@@ -72,94 +66,87 @@ export default class VDate {
      */
     format(format?: any): any;
     /**
-     * @description 返回输入Date的相差的月份数
-     * @param {Date} 要计算的时间
-     * @return {Number} 月数
+     * @description get the month difference between the input date and current date
+     * @param {Date}
+     * @return {Number}
      */
     diffMonth(date: any): number;
     /**
-    * @description 返回输入Date的相差的年份数
-    * @param {Date} 要计算的时间
-    * @return {Number} 年数
-    */
+     * @description get the year difference between the input date and current date
+     * @param {Date}
+     * @return {Number}
+     */
     diffYear(date: any): number;
     /**
-     * @description 返回日期是否合法
+     * @description check is date valid
      * @return {Boolean}
      */
     isValid(): boolean;
     static parse(value: any, isNative?: boolean, ignoreNegative?: any): any;
     /**
-     * 返回两个日期相差分钟数
+     * @description get the minute difference between the two input dates
      * @param ds1
      * @param ds2
      * @returns {number}
      */
     static minuteDiff(ds1: any, ds2: any): number;
     /**
-     * 返回两个日期相差小时数
+     * @description get the hour difference between the two input dates
      * @param ds1
      * @param ds2
      * @returns {number}
      */
     static hourDiff(ds1: any, ds2: any): number;
     /**
-     * 返回两个日期相差的天数
-     * @static
-     * @param {String} ds1  日期1
-     * @param {String} ds2  日期2
-     * @returns {Number} num 相差天数
+     * @description get the day difference between the two input dates
+     * @param {String} ds1
+     * @param {String} ds2
+     * @returns {Number}
      */
     static dayDiff(ds1: any, ds2: any): number;
     /**
-     * 计算两个时间的相隔月份数
-     * @static
+     * @description get the month difference between the two input dates
      * @param d1
      * @param d2
      * @returns {Number|*}
      */
     static diffMonth(d1: any, d2: any): any;
     /**
-     * 计算两个时间的相隔年份数
-     * @static
+     * @description get the year difference between the two input dates
      * @param d1
      * @param d2
      * @returns {Number|*}
      */
     static diffYear(d1: any, d2: any): any;
     /**
-     * 判断一个日期是否在一个时间区间内
-     * @static
-     * @param {String} sTime  时间区间，start
-     * @param {String} eTime  时间区间，end
-     * @param {String} time  时间
-     * @returns {Boolean} true、false 在 or 不在
+     * @description check the time is in the input range
+     * @param {String} sTime  start time
+     * @param {String} eTime  end time
+     * @param {String} time
+     * @returns {Boolean}
      */
     static timeRange(sTime: any, eTime: any, time: any): boolean;
     /**
-     * 日期类型格式化为指定字符串
-     * @static
+     * @description format time to the specified string
      * @param {String} str
      * @returns {String|*}
      */
     static format(date: any, str: any, ignoreNegative?: any): any;
     /**
-     * @static
-     * param {number} timeStamp
-     * +0800接口返回的时区不准确，默认北京时区
-     * 做时区offset
+     * @description handle timezone, default Beijing timezone
+     * @param {number} timeStamp
      */
     static handleZone(timeStamp: any): any;
     /**
-     * 转换为js可识别的时间戳
+     * @description transform date to timestamp
      * @eg transform("/Date(1395331200000+0800)/") => 1395331200000
      */
     static transformTimeStamp(dateStr: any): any;
     /**
-     * 转换Java服务输出的日期格式（ISO 8601）为时间戳
-     * 2019-03-06T13:30:00.000+08:00 => 1551850200000
+     * @description transform date to timestamp
      * @param dateStr
      * @returns {*}
+     * @eg 2019-03-06T13:30:00.000+08:00 => 1551850200000
      */
     static transformTimeStampISO8601(dateStr: any): number;
     static transformServerDate(timeStamp: any): string;

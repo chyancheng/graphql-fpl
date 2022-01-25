@@ -1,5 +1,5 @@
-const { GraphQLServer } = require("graphql-yoga");
-const resolvers = require("./resolvers");
+import { GraphQLServer } from "graphql-yoga";
+import resolvers from './resolvers'
 
 const server = new GraphQLServer({
   typeDefs: "src/schema.graphql",

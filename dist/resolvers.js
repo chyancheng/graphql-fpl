@@ -50,12 +50,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolvers = void 0;
 var node_cache_1 = __importDefault(require("node-cache"));
 var axios_1 = __importDefault(require("axios"));
-var vdate_1 = __importDefault(require("./vdate"));
+var vdate_1 = __importDefault(require("./util/vdate"));
 var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
 var baseURI = 'https://fantasy.premierleague.com/api';
-// gql request function
 var request = function (url) {
     return axios_1.default
         .get(url, {
@@ -106,7 +106,8 @@ var getPlayer = function (id) {
             return json.elements.find(function (p) { return p.id == id; });
         });
     }
-    return cached.find(function (p) { return p.id == id; });
+    var playerInfo = cached.find(function (p) { return p.id == id; });
+    return playerInfo;
 };
 var getPlayerByName = function (web_name) {
     var cached = cache.get('players');
@@ -118,7 +119,23 @@ var getPlayerByName = function (web_name) {
     }
     return cached.find(function (p) { return p.web_name == web_name; });
 };
-var getCachedEvents = function () { return __awaiter(void 0, void 0, void 0, function () {
+var getEventLive = function (eventId) { return __awaiter(void 0, void 0, void 0, function () {
+    var cached, data;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                cached = cache.get('events-' + eventId);
+                if (!(cached == undefined)) return [3 /*break*/, 2];
+                return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(eventId, "/live/"))];
+            case 1:
+                data = _a.sent();
+                cache.set('events-' + eventId, data.elements);
+                return [2 /*return*/, data.elements];
+            case 2: return [2 /*return*/, cached];
+        }
+    });
+}); };
+var getCachedEvent = function (id) { return __awaiter(void 0, void 0, void 0, function () {
     var cached, events;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -129,24 +146,16 @@ var getCachedEvents = function () { return __awaiter(void 0, void 0, void 0, fun
             case 1:
                 events = (_a.sent()).events;
                 cache.set('events', events);
-                cached = events;
-                _a.label = 2;
-            case 2: return [2 /*return*/, cached];
+                return [2 /*return*/, events.find(function (g) { return g.id == id; })];
+            case 2: return [2 /*return*/, cached.find(function (g) { return g.id == id; })];
         }
     });
 }); };
-var resolvers = {
+exports.resolvers = {
     Query: {
         event: function (_, args) {
             var id = args.id;
-            var cached = cache.get('events');
-            if (cached == undefined) {
-                return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
-                    cache.set('events', json.events);
-                    return json.events.find(function (g) { return g.id == id; });
-                });
-            }
-            return cached.find(function (g) { return g.id == id; });
+            return getCachedEvent(id);
         },
         events: function () {
             var cached = cache.get('events');
@@ -230,6 +239,12 @@ var resolvers = {
             });
         }); },
     },
+    Entry: {
+        player_full_name: function (parent) {
+            var player_first_name = parent.player_first_name, player_last_name = parent.player_last_name;
+            return player_first_name + ' ' + player_last_name;
+        },
+    },
     Team: {
         players: function (parent) {
             var id = parent.id;
@@ -264,6 +279,19 @@ var resolvers = {
     },
     Player: {
         team: function (parent) { return getTeam(parent.team); },
+        live: function (parent, args) { return __awaiter(void 0, void 0, void 0, function () {
+            var elements;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log(parent);
+                        return [4 /*yield*/, getEventLive(args.event)];
+                    case 1:
+                        elements = _a.sent();
+                        return [2 /*return*/, elements.find(function (el) { return el.id == parent.id; })];
+                }
+            });
+        }); }
     },
     Event: {
         most_selected: function (parent) { return getPlayer(parent.most_selected); },
@@ -281,6 +309,9 @@ var resolvers = {
                 });
             }
             return cached.filter(function (f) { return f.event == id; });
+        },
+        deadline_time: function (parent) {
+            return new vdate_1.default(new Date(parent.deadline_time).getTime()).format('YYYY-MM-DD HH:mm:ss');
         },
     },
     EntryHistory: {
@@ -351,26 +382,24 @@ var resolvers = {
         player_in: function (parent) { return getPlayer(parent.element_in); },
         player_out: function (parent) { return getPlayer(parent.element_out); },
         cur_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
-            var cachedEvents, curEvent, cur_ddl;
+            var curEvent, cur_ddl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getCachedEvents()];
+                    case 0: return [4 /*yield*/, getCachedEvent(parent.event)];
                     case 1:
-                        cachedEvents = _a.sent();
-                        curEvent = cachedEvents.find(function (item) { return item.id === parent.event; });
+                        curEvent = _a.sent();
                         cur_ddl = curEvent ? curEvent.deadline_time : 0;
                         return [2 /*return*/, new vdate_1.default(new Date(cur_ddl).getTime()).format('YYYY-MM-DD HH:mm:ss')];
                 }
             });
         }); },
         last_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
-            var cachedEvents, lastEvent, last_ddl;
+            var lastEvent, last_ddl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getCachedEvents()];
+                    case 0: return [4 /*yield*/, getCachedEvent(parent.event - 1)];
                     case 1:
-                        cachedEvents = _a.sent();
-                        lastEvent = cachedEvents.find(function (item) { return item.id === parent.event - 1; });
+                        lastEvent = _a.sent();
                         last_ddl = lastEvent ? lastEvent.deadline_time : 0;
                         return [2 /*return*/, new vdate_1.default(new Date(last_ddl).getTime()).format('YYYY-MM-DD HH:mm:ss')];
                 }
@@ -378,4 +407,4 @@ var resolvers = {
         }); },
     },
 };
-module.exports = resolvers;
+exports.default = exports.resolvers;

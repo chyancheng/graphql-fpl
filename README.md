@@ -42,6 +42,51 @@ The server will run at http://localhost:4000 with a graphql playground (browse d
 ![2019-09-05 19_46_36-Playground - http___localhost_4000_](https://user-images.githubusercontent.com/16566237/64362042-d3a65380-d01e-11e9-9abe-cddfc84e5469.png)
 Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
 
+### Example Query
+```
+{
+  event(id: 23) {
+    name
+    most_transferred_in {
+      web_name
+      live(event: 23) {
+        stats {
+          total_points
+        }
+      }
+    }
+  }
+  live(event: 1, id: 233) {
+    player {
+      web_name
+    }
+    stats {
+      total_points
+    }
+  }
+  entry(id: 2) {
+    name
+    player_full_name
+    summary_overall_points
+    summary_overall_rank
+  }
+  transfers(id: 2) {
+    time
+    player_in {
+      web_name
+      event_points
+    }
+    player_out {
+      web_name
+      event_points
+    }
+    last_ddl
+    cur_ddl
+  }
+}
+
+```
+
 ## Feel free to fork :fork_and_knife:
 
 If it helps you build something awesome, let me know.

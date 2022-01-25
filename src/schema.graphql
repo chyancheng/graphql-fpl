@@ -138,6 +138,7 @@ type Player {
   creativity: String!
   threat: String!
   ict_index: String!
+  live(event: Int): Live
 }
 
 type TopElementInfo {
@@ -151,6 +152,7 @@ type Entry {
   started_event: Int!
   player_first_name: String!
   player_last_name: String!
+  player_full_name: String!
   player_region_id: Int!
   player_region_name: String!
   summary_overall_points: Int

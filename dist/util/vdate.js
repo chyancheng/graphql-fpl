@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
-* @param {String} str
-* @param {Number} len
-* @param {String} fill
-* @param {Boolean} pre
-* @example pad('1', 3, '0', true) ==> '001'
-* @example pad('1', 3, '-') ==> '1--'
-*/
+/**
+ * @param {String} str
+ * @param {Number} len
+ * @param {String} fill
+ * @param {Boolean} pre
+ * @example pad('1', 3, '0', true) ==> '001'
+ * @example pad('1', 3, '-') ==> '1--'
+ */
 var pad = function (str, len, fill, pre) {
     str = str.toString();
     if (str.length < len) {
@@ -22,22 +22,21 @@ var pad = function (str, len, fill, pre) {
     return str;
 };
 //
-var weeks = ["日", "一", "二", "三", "四", "五", "六"];
+var weeks = ['日', '一', '二', '三', '四', '五', '六'];
 var reg = /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z)?((\+|-)?\d{1,2}:00)?$/;
 var VDate = /** @class */ (function () {
     function VDate(date, ignoreNegative) {
         if (ignoreNegative === void 0) { ignoreNegative = true; }
-        // ignoreNegative 表示是否忽略负数日期
         this.date = new Date('');
         /**
-         * 在date为空和毫秒值时会自动处理时区问题
-         * 如果需要强制转换为北京时区，可以使用toBJZone方法
+         * handle timezone auto when date is null or ms
+         * use toBJZone() to convert to Beijing timezone
          */
         var defaultDate = VDate.handleZone(Date.now());
         if (date) {
             if (/^-\d+$/.test(date)) {
                 if (ignoreNegative) {
-                    // 负数的timestamp返回一个非法的日期对象
+                    // negative timestamp return invalid Date object
                     this.date = new Date('');
                     return this;
                 }
@@ -47,16 +46,14 @@ var VDate = /** @class */ (function () {
                 date = VDate.handleZone(date);
             }
             else if (typeof date === 'object' && date instanceof VDate) {
-                return (date);
+                return date;
             }
         }
         date = date || defaultDate;
-        // 处理date.parse在ios下缺少dd时的兼容性问题
         if (typeof date === 'string') {
             var regtime = /^(\d{4})\-?(\d{1,2})(?:\-(\d{1,2}))?/i;
             if (date.match(regtime)) {
                 date = date.replace(regtime, function (_, $1, $2, $3) {
-                    // 如果只有yyyy-mm，需要补充dd，否则在safari下会报错
                     return "".concat($1, "/").concat($2 || '01', "/").concat($3 || '01');
                 });
             }
@@ -64,7 +61,7 @@ var VDate = /** @class */ (function () {
         this.date = new Date(date);
     }
     /**
-     * @description 当前时间加n天
+     * @description add n days to current time
      * @method addDay
      * @param {Number} n
      * @returns {vDate}
@@ -75,7 +72,7 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * @description 当前时间加n月
+     * @description add n months to current time
      * @param {Number} n
      * @returns {vDate}
      */
@@ -85,7 +82,7 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * @description 当前时间加n个小时
+     * @description add n hours to current time
      * @param {Number} n
      * @returns {vDate}
      */
@@ -95,7 +92,7 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * 当前时间基础上增加n分
+     * @description add n minutes to current time
      * @param {Number} n
      * @returns {vDate}
      */
@@ -105,7 +102,7 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * 当前时间基础上增加n秒
+     * @description add n seconds to current time
      * @param {Number} n
      * @returns {vDate}
      */
@@ -115,7 +112,7 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * @description 当前时间加n年
+     * @description add n years to current time
      * @param {Number} n
      * @returns {vDate}
      */
@@ -125,15 +122,12 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * 转换为北京时区
-     * return {VDate} 新的Vdate实例
+     * @description convert to Beijing timezone
+     * @return {VDate}
      */
     VDate.prototype.toBJZone = function () {
         return new VDate(VDate.handleZone(this.date.getTime()));
     };
-    /**
-     * @description 设置当前时间的小时，分，秒
-     */
     VDate.prototype.setHours = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -142,9 +136,6 @@ var VDate = /** @class */ (function () {
         this.date.setHours.apply(this.date, args);
         return this;
     };
-    /**
-     * @description 设置当前时间分 秒 毫秒
-     */
     VDate.prototype.setMinutes = function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -154,21 +145,21 @@ var VDate = /** @class */ (function () {
         return this;
     };
     /**
-     * 获得原生Date对象
+     * @description get the native Date object
      * @returns {Date}
      */
     VDate.prototype.valueOf = function () {
         return this.date;
     };
     /**
-     * 获得毫秒数
-     * @returns {number} 毫秒
+     * @description get timestamp
+     * @returns {number}
      */
     VDate.prototype.getTime = function () {
         return this.date.valueOf();
     };
     /**
-     * 获得utc时间字符串
+     * @description get utc string
      */
     VDate.prototype.toString = function () {
         return this.date.toString();
@@ -215,9 +206,9 @@ var VDate = /** @class */ (function () {
         });
     };
     /**
-     * @description 返回输入Date的相差的月份数
-     * @param {Date} 要计算的时间
-     * @return {Number} 月数
+     * @description get the month difference between the input date and current date
+     * @param {Date}
+     * @return {Number}
      */
     VDate.prototype.diffMonth = function (date) {
         var curY = parseInt(this.format('YYYY'), 10);
@@ -228,10 +219,10 @@ var VDate = /** @class */ (function () {
         return (cdateY - curY) * 12 + (cdateM - curM);
     };
     /**
-    * @description 返回输入Date的相差的年份数
-    * @param {Date} 要计算的时间
-    * @return {Number} 年数
-    */
+     * @description get the year difference between the input date and current date
+     * @param {Date}
+     * @return {Number}
+     */
     VDate.prototype.diffYear = function (date) {
         var curY = parseInt(this.format('YYYY'), 10);
         var cdate = new VDate(date);
@@ -239,7 +230,7 @@ var VDate = /** @class */ (function () {
         return cdateY - curY;
     };
     /**
-     * @description 返回日期是否合法
+     * @description check is date valid
      * @return {Boolean}
      */
     VDate.prototype.isValid = function () {
@@ -254,25 +245,23 @@ var VDate = /** @class */ (function () {
         }
         value += '';
         if (value.indexOf('Date') > -1) {
-            // 服务下发的 "\/Date(1482394964000+0800)\/" 转换为 vdate
+            // transform "\/Date(1482394964000+0800)\/" to vdate
             value = value.match(/((\+|-)?\d+)/)[0];
         }
         else if (reg.test(value)) {
-            // 服务下发的 "2019-03-06T13:30:00.000+08:00" 转换为 vdate
+            // transform "2019-03-06T13:30:00.000+08:00" to vdate
             value = VDate.transformTimeStampISO8601(value);
         }
         if (!isNaN(value)) {
             value = parseInt(value, 10);
         }
-        // 2017-10-01 or 2017/10/01 类型
-        // if (typeof value === 'string') {
-        //     value = value.replace(/[-]/g, "/");
-        // }
-        // timespan类型
-        return isNative ? new VDate(value, ignoreNegative).valueOf() : new VDate(value, ignoreNegative);
+        // timespan
+        return isNative
+            ? new VDate(value, ignoreNegative).valueOf()
+            : new VDate(value, ignoreNegative);
     };
     /**
-     * 返回两个日期相差分钟数
+     * @description get the minute difference between the two input dates
      * @param ds1
      * @param ds2
      * @returns {number}
@@ -283,7 +272,7 @@ var VDate = /** @class */ (function () {
         return (d2 - d1) / 60000;
     };
     /**
-     * 返回两个日期相差小时数
+     * @description get the hour difference between the two input dates
      * @param ds1
      * @param ds2
      * @returns {number}
@@ -294,11 +283,10 @@ var VDate = /** @class */ (function () {
         return (d2 - d1) / 3600000;
     };
     /**
-     * 返回两个日期相差的天数
-     * @static
-     * @param {String} ds1  日期1
-     * @param {String} ds2  日期2
-     * @returns {Number} num 相差天数
+     * @description get the day difference between the two input dates
+     * @param {String} ds1
+     * @param {String} ds2
+     * @returns {Number}
      */
     VDate.dayDiff = function (ds1, ds2) {
         var d1 = VDate.parse(ds1, true);
@@ -310,8 +298,7 @@ var VDate = /** @class */ (function () {
         return (cd2 - cd1) / 86400000;
     };
     /**
-     * 计算两个时间的相隔月份数
-     * @static
+     * @description get the month difference between the two input dates
      * @param d1
      * @param d2
      * @returns {Number|*}
@@ -321,8 +308,7 @@ var VDate = /** @class */ (function () {
         return d1.diffMonth(d2);
     };
     /**
-     * 计算两个时间的相隔年份数
-     * @static
+     * @description get the year difference between the two input dates
      * @param d1
      * @param d2
      * @returns {Number|*}
@@ -332,15 +318,13 @@ var VDate = /** @class */ (function () {
         return d1.diffYear(d2);
     };
     /**
-     * 判断一个日期是否在一个时间区间内
-     * @static
-     * @param {String} sTime  时间区间，start
-     * @param {String} eTime  时间区间，end
-     * @param {String} time  时间
-     * @returns {Boolean} true、false 在 or 不在
+     * @description check the time is in the input range
+     * @param {String} sTime  start time
+     * @param {String} eTime  end time
+     * @param {String} time
+     * @returns {Boolean}
      */
     VDate.timeRange = function (sTime, eTime, time) {
-        // 时间可为时间戳格式，也可为‘YYYY-MM-DD’格式
         var test1 = VDate.dayDiff(sTime, time);
         var test2 = VDate.dayDiff(time, eTime);
         if (test1 >= 0 && test2 >= 0) {
@@ -351,8 +335,7 @@ var VDate = /** @class */ (function () {
         }
     };
     /**
-     * 日期类型格式化为指定字符串
-     * @static
+     * @description format time to the specified string
      * @param {String} str
      * @returns {String|*}
      */
@@ -361,10 +344,8 @@ var VDate = /** @class */ (function () {
         return new VDate(date, ignoreNegative).format(str);
     };
     /**
-     * @static
-     * param {number} timeStamp
-     * +0800接口返回的时区不准确，默认北京时区
-     * 做时区offset
+     * @description handle timezone, default Beijing timezone
+     * @param {number} timeStamp
      */
     VDate.handleZone = function (timeStamp) {
         if (!timeStamp || isNaN(timeStamp)) {
@@ -375,7 +356,7 @@ var VDate = /** @class */ (function () {
         return +timeStamp + timezoneOffset * 60000 + defaultTimeZone;
     };
     /**
-     * 转换为js可识别的时间戳
+     * @description transform date to timestamp
      * @eg transform("/Date(1395331200000+0800)/") => 1395331200000
      */
     VDate.transformTimeStamp = function (dateStr) {
@@ -391,10 +372,10 @@ var VDate = /** @class */ (function () {
         }
     };
     /**
-     * 转换Java服务输出的日期格式（ISO 8601）为时间戳
-     * 2019-03-06T13:30:00.000+08:00 => 1551850200000
+     * @description transform date to timestamp
      * @param dateStr
      * @returns {*}
+     * @eg 2019-03-06T13:30:00.000+08:00 => 1551850200000
      */
     VDate.transformTimeStampISO8601 = function (dateStr) {
         var matches = dateStr.match(reg);
@@ -412,7 +393,7 @@ var VDate = /** @class */ (function () {
     };
     VDate.transformServerDate = function (timeStamp) {
         timeStamp = VDate.handleZone(timeStamp);
-        return "/Date(" + timeStamp + "+0800)/";
+        return '/Date(' + timeStamp + '+0800)/';
     };
     VDate.isCrossYear = function (date, ignoreNegative) {
         date = this.parse(date, true, ignoreNegative);
