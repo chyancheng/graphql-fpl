@@ -1,15 +1,62 @@
 type Query {
-    team(id: ID!): Team!
+    """
+    Query the data of a PL Team
+    """
+    team(teamId: ID!): Team!
     fixture(id: ID!): Fixture!
-    event(id: ID!): Event!
+    """
+    Query the data of a gameweek
+    """
+    event(event: ID!): Event!
+    """
+    Query the data of each gameweek
+    """
     events: [Event!]!
-    player(id: ID, name: String): Player!
-    entry(id: ID!): Entry!
-    entryHistory(id: ID!): EntryHistory
-    live(event: Int!, id: ID!): Live!
-    picks(entry: Int!, event: Int!): Picks!
-    playerSummary(id: ID!): PlayerSummary
-    transfers(id: ID!): [Transfers!]
+    """
+    Query the data of a player
+    """
+    player(playerId: ID, playerName: String): Player!
+    """
+    Query the data of a manager
+    """
+    entry(entryId: ID!): Entry!
+    """
+    Query the history data of a manager
+    """
+    entryHistory(entryId: ID!): EntryHistory
+    """
+    Query the data of a player for a specified gameweek
+    """
+    live(playerId: ID!, event: Int!): Live!
+    """
+    Query the data of a manager for a specified gameweek
+    """
+    picks(entryId: Int!, event: Int!): Picks!
+    """
+    Query the history data of a player
+    """
+    playerSummary(playerId: ID!): PlayerSummary
+    """
+    Query the transfers data of a manager
+    """
+    transfers(entryId: ID!): [Transfers!]
+}
+
+type Team {
+    code: String!
+    form: Boolean
+    id: ID!
+    name: String!
+    short_name: String!
+    strength: Int!
+    strength_overall_home: Int!
+    strength_overall_away: Int!
+    strength_attack_home: Int!
+    strength_attack_away: Int!
+    strength_defence_home: Int!
+    strength_defence_away: Int!
+    players: [Player!]!
+    fixtures: [Fixture!]!
 }
 
 type Event {
@@ -40,23 +87,6 @@ type Event {
 type ChipPlay {
     chip_name: String!
     num_played: Int!
-}
-
-type Team {
-    code: String!
-    form: Boolean
-    id: ID!
-    name: String!
-    short_name: String!
-    strength: Int!
-    strength_overall_home: Int!
-    strength_overall_away: Int!
-    strength_attack_home: Int!
-    strength_attack_away: Int!
-    strength_defence_home: Int!
-    strength_defence_away: Int!
-    players: [Player!]!
-    fixtures: [Fixture!]!
 }
 
 type Fixture {

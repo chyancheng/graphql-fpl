@@ -127,17 +127,17 @@ var getPlayerByName = function (web_name) {
     }
     return cached.find(function (p) { return p.web_name == web_name; });
 };
-var getEventLive = function (eventId) { return __awaiter(void 0, void 0, void 0, function () {
+var getEventLive = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     var cached, data;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                cached = cache.get('events-' + eventId);
+                cached = cache.get('events-' + event);
                 if (!(cached == undefined)) return [3 /*break*/, 2];
-                return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(eventId, "/live/"))];
+                return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(event, "/live/"))];
             case 1:
                 data = _a.sent();
-                cache.set('events-' + eventId, data.elements);
+                cache.set('events-' + event, data.elements);
                 return [2 /*return*/, data.elements];
             case 2: return [2 /*return*/, cached];
         }
@@ -162,7 +162,7 @@ var getCachedEvent = function (id) { return __awaiter(void 0, void 0, void 0, fu
 var resolvers = {
     Query: {
         event: function (_, args) {
-            return getCachedEvent(args.id);
+            return getCachedEvent(args.event);
         },
         events: function () {
             var cached = cache.get('events');
@@ -174,7 +174,7 @@ var resolvers = {
             }
             return cached;
         },
-        team: function (_, args) { return getTeam(args.id); },
+        team: function (_, args) { return getTeam(args.teamId); },
         fixture: function (_, args) {
             var id = args.id;
             var cached = cache.get('fixtures');
@@ -186,14 +186,11 @@ var resolvers = {
             }
             return cached.find(function (f) { return f.id == id; });
         },
-        player: function (_, args) { return (args.id ? getPlayer(args.id) : getPlayerByName(args.name)); },
+        player: function (_, args) { return (args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName)); },
         entry: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
-            var id;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        id = args.id;
-                        return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(id, "/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/"))];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -202,29 +199,28 @@ var resolvers = {
             var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.id, "/history/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/history/"))];
                     case 1:
                         data = _a.sent();
-                        return [2 /*return*/, __assign(__assign({}, data), { teamId: args.id })];
+                        return [2 /*return*/, __assign(__assign({}, data), { entryId: args.entryId })];
                 }
             });
         }); },
         live: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
-            var data, elements;
+            var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(args.event, "/live/"))];
                     case 1:
                         data = _a.sent();
-                        elements = data.elements;
-                        return [2 /*return*/, elements.find(function (el) { return el.id == args.id; })];
+                        return [2 /*return*/, data.elements.find(function (el) { return el.id == args.playerId; })];
                 }
             });
         }); },
         picks: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entry, "/event/").concat(args.event, "/picks/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/event/").concat(args.event, "/picks/"))];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -232,7 +228,7 @@ var resolvers = {
         playerSummary: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/element-summary/").concat(args.id, "/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/element-summary/").concat(args.playerId, "/"))];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -240,7 +236,7 @@ var resolvers = {
         transfers: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.id, "/transfers/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/transfers/"))];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -254,15 +250,15 @@ var resolvers = {
     },
     Team: {
         players: function (parent) {
-            var id = parent.id;
+            var teamId = parent.teamId;
             var cached = cache.get('players');
             if (cache.get('players') == undefined) {
                 return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
                     cache.set('players', json.elements);
-                    return json.elements.filter(function (p) { return p.team == id; });
+                    return json.elements.filter(function (p) { return p.team == teamId; });
                 });
             }
-            return cached.filter(function (p) { return p.team == id; });
+            return cached.filter(function (p) { return p.team == teamId; });
         },
         fixtures: function (parent) {
             var id = parent.id;
@@ -287,12 +283,12 @@ var resolvers = {
     Player: {
         team: function (parent) { return getTeam(parent.team); },
         live: function (parent, args) { return __awaiter(void 0, void 0, void 0, function () {
-            var eventId, elements;
+            var event, elements;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        eventId = (args === null || args === void 0 ? void 0 : args.event) ? args.event : parent.eventId;
-                        return [4 /*yield*/, getEventLive(eventId)];
+                        event = (args === null || args === void 0 ? void 0 : args.event) ? args.event : parent.event;
+                        return [4 /*yield*/, getEventLive(event)];
                     case 1:
                         elements = _a.sent();
                         return [2 /*return*/, elements.find(function (el) { return el.id == parent.id; })];
@@ -302,19 +298,19 @@ var resolvers = {
     },
     Event: {
         most_selected: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_selected)), { eventId: parent.id });
+            return __assign(__assign({}, getPlayer(parent.most_selected)), { event: parent.id });
         },
         most_transferred_in: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_transferred_in)), { eventId: parent.id });
+            return __assign(__assign({}, getPlayer(parent.most_transferred_in)), { event: parent.id });
         },
         top_element: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.top_element)), { eventId: parent.id });
+            return __assign(__assign({}, getPlayer(parent.top_element)), { event: parent.id });
         },
         most_captained: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_captained)), { eventId: parent.id });
+            return __assign(__assign({}, getPlayer(parent.most_captained)), { event: parent.id });
         },
         most_vice_captained: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_vice_captained)), { eventId: parent.id });
+            return __assign(__assign({}, getPlayer(parent.most_vice_captained)), { event: parent.id });
         },
         fixtures: function (parent) {
             var id = parent.id;
@@ -334,23 +330,22 @@ var resolvers = {
     EntryHistory: {
         current: function (parent) {
             return parent.current.map(function (item) {
-                return __assign(__assign({}, item), { teamId: parent.teamId });
+                return __assign(__assign({}, item), { entryId: parent.entryId });
             });
         },
         chips: function (parent) { return parent.chips; },
     },
     EventHistory: {
         event: function (parent) {
-            var id = parent.event;
             return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
-                return json.events.find(function (g) { return g.id == id; });
+                return json.events.find(function (g) { return g.id == parent.event; });
             });
         },
         transfers: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
             var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.teamId, "/transfers/"))];
+                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.entryId, "/transfers/"))];
                     case 1:
                         data = _a.sent();
                         return [2 /*return*/, data.filter(function (item) { return item.event === parent.event; })];
@@ -413,10 +408,10 @@ var resolvers = {
             return new vdate_1.default(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss');
         },
         player_in: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.element_in)), { eventId: parent.event });
+            return __assign(__assign({}, getPlayer(parent.element_in)), { event: parent.event });
         },
         player_out: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.element_out)), { eventId: parent.event });
+            return __assign(__assign({}, getPlayer(parent.element_out)), { event: parent.event });
         },
         cur_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
             var curEvent, cur_ddl;

@@ -74,11 +74,11 @@ const getPlayerByName = (web_name) => {
     return cached.find((p) => p.web_name == web_name)
 }
 
-const getEventLive: any = async (eventId) => {
-    let cached = cache.get('events-' + eventId) as any[]
+const getEventLive: any = async (event) => {
+    let cached = cache.get('events-' + event) as any[]
     if (cached == undefined) {
-        let data = await request(`${baseURI}/event/${eventId}/live/`)
-        cache.set('events-' + eventId, data.elements)
+        let data = await request(`${baseURI}/event/${event}/live/`)
+        cache.set('events-' + event, data.elements)
         return data.elements
     }
     return cached
@@ -97,7 +97,7 @@ const getCachedEvent: any = async (id) => {
 const resolvers = {
     Query: {
         event: (_, args) => {
-            return getCachedEvent(args.id)
+            return getCachedEvent(args.event)
         },
 
         events: () => {
@@ -111,7 +111,7 @@ const resolvers = {
             return cached
         },
 
-        team: (_, args) => getTeam(args.id),
+        team: (_, args) => getTeam(args.teamId),
 
         fixture: (_, args) => {
             const { id } = args
@@ -125,34 +125,32 @@ const resolvers = {
             return cached.find((f) => f.id == id)
         },
 
-        player: (_, args) => (args.id ? getPlayer(args.id) : getPlayerByName(args.name)),
+        player: (_, args) => (args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName)),
 
         entry: async (_, args) => {
-            const { id } = args
-            return await request(`${baseURI}/entry/${id}/`)
+            return await request(`${baseURI}/entry/${args.entryId}/`)
         },
 
         entryHistory: async (_, args) => {
-            let data = await request(`${baseURI}/entry/${args.id}/history/`)
-            return { ...data, teamId: args.id }
+            let data = await request(`${baseURI}/entry/${args.entryId}/history/`)
+            return { ...data, entryId: args.entryId }
         },
 
         live: async (_, args) => {
             let data = await request(`${baseURI}/event/${args.event}/live/`)
-            let elements = data.elements
-            return elements.find((el) => el.id == args.id)
+            return data.elements.find((el) => el.id == args.playerId)
         },
 
         picks: async (_, args) => {
-            return await request(`${baseURI}/entry/${args.entry}/event/${args.event}/picks/`)
+            return await request(`${baseURI}/entry/${args.entryId}/event/${args.event}/picks/`)
         },
 
         playerSummary: async (_, args) => {
-            return await request(`${baseURI}/element-summary/${args.id}/`)
+            return await request(`${baseURI}/element-summary/${args.playerId}/`)
         },
 
         transfers: async (_, args) => {
-            return await request(`${baseURI}/entry/${args.id}/transfers/`)
+            return await request(`${baseURI}/entry/${args.entryId}/transfers/`)
         },
     },
     Entry: {
@@ -163,15 +161,15 @@ const resolvers = {
     },
     Team: {
         players: (parent) => {
-            const { id } = parent
+            const { teamId } = parent
             let cached = cache.get('players') as any[]
             if (cache.get('players') == undefined) {
                 return request(`${baseURI}/bootstrap-static/`).then((json) => {
                     cache.set('players', json.elements)
-                    return json.elements.filter((p) => p.team == id)
+                    return json.elements.filter((p) => p.team == teamId)
                 })
             }
-            return cached.filter((p) => p.team == id)
+            return cached.filter((p) => p.team == teamId)
         },
         fixtures: (parent) => {
             const { id } = parent
@@ -201,27 +199,27 @@ const resolvers = {
     Player: {
         team: (parent) => getTeam(parent.team),
         live: async (parent, args) => {
-            let eventId = args?.event ? args.event : parent.eventId
-            let elements = await getEventLive(eventId)
+            let event = args?.event ? args.event : parent.event
+            let elements = await getEventLive(event)
             return elements.find((el) => el.id == parent.id)
         },
     },
 
     Event: {
         most_selected: (parent) => {
-            return { ...getPlayer(parent.most_selected), eventId: parent.id }
+            return { ...getPlayer(parent.most_selected), event: parent.id }
         },
         most_transferred_in: (parent) => {
-            return { ...getPlayer(parent.most_transferred_in), eventId: parent.id }
+            return { ...getPlayer(parent.most_transferred_in), event: parent.id }
         },
         top_element: (parent) => {
-            return { ...getPlayer(parent.top_element), eventId: parent.id }
+            return { ...getPlayer(parent.top_element), event: parent.id }
         },
         most_captained: (parent) => {
-            return { ...getPlayer(parent.most_captained), eventId: parent.id }
+            return { ...getPlayer(parent.most_captained), event: parent.id }
         },
         most_vice_captained: (parent) => {
-            return { ...getPlayer(parent.most_vice_captained), eventId: parent.id }
+            return { ...getPlayer(parent.most_vice_captained), event: parent.id }
         },
         fixtures: (parent) => {
             const { id } = parent
@@ -242,7 +240,7 @@ const resolvers = {
     EntryHistory: {
         current: (parent) => {
             return parent.current.map((item) => {
-                return { ...item, teamId: parent.teamId }
+                return { ...item, entryId: parent.entryId }
             })
         },
         chips: (parent) => parent.chips,
@@ -250,13 +248,12 @@ const resolvers = {
 
     EventHistory: {
         event: (parent) => {
-            const id = parent.event
             return request(`${baseURI}/bootstrap-static/`).then((json) =>
-                json.events.find((g) => g.id == id)
+                json.events.find((g) => g.id == parent.event)
             )
         },
         transfers: async (parent) => {
-            let data = await request(`${baseURI}/entry/${parent.teamId}/transfers/`)
+            let data = await request(`${baseURI}/entry/${parent.entryId}/transfers/`)
             return data.filter((item) => item.event === parent.event)
         },
     },
@@ -299,10 +296,10 @@ const resolvers = {
             return new VDate(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss')
         },
         player_in: (parent) => {
-            return { ...getPlayer(parent.element_in), eventId: parent.event }
+            return { ...getPlayer(parent.element_in), event: parent.event }
         },
         player_out: (parent) => {
-            return { ...getPlayer(parent.element_out), eventId: parent.event }
+            return { ...getPlayer(parent.element_out), event: parent.event }
         },
         cur_ddl: async (parent) => {
             let curEvent = await getCachedEvent(parent.event)

@@ -45,7 +45,10 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
 ### Example Query
 ```
 {
-  event(id: 23) {
+  team(teamId: 2) {
+    name
+  }
+  event(event: 23) {
     name
     most_transferred_in {
       web_name
@@ -56,21 +59,19 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
       }
     }
   }
-  live(event: 1, id: 233) {
+  live(event: 1, playerId: 233) {
     player {
       web_name
-    }
-    stats {
       total_points
     }
   }
-  entry(id: 2) {
+  entry(entryId: 2) {
     name
     player_full_name
     summary_overall_points
     summary_overall_rank
   }
-  transfers(id: 2) {
+  transfers(entryId: 2) {
     time
     player_in {
       web_name
@@ -83,14 +84,14 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
     last_ddl
     cur_ddl
   }
-  entryHistory(id: 2) {
+  entryHistory(entryId: 2) {
     current {
       points
       total_points
       rank
       points_on_bench
       event {
-        id 
+        id
       }
       transfers {
         time
@@ -113,7 +114,6 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
     }
   }
 }
-
 ```
 
 ## Feel free to fork :fork_and_knife:
