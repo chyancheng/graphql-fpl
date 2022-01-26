@@ -201,7 +201,9 @@ const resolvers = {
     Player: {
         team: (parent) => getTeam(parent.team),
         live: async (parent, args) => {
-            let elements = await getEventLive(args.event)
+            console.log(parent)
+            let eventId = args?.event ? args.event : parent.eventId
+            let elements = await getEventLive(eventId)
             return elements.find((el) => el.id == parent.id)
         },
     },
@@ -287,8 +289,12 @@ const resolvers = {
         time: (parent) => {
             return new VDate(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss')
         },
-        player_in: (parent) => getPlayer(parent.element_in),
-        player_out: (parent) => getPlayer(parent.element_out),
+        player_in: (parent) => {
+            return { ...getPlayer(parent.element_in), eventId: parent.event }
+        },
+        player_out: (parent) => {
+            return { ...getPlayer(parent.element_out), eventId: parent.event }
+        },
         cur_ddl: async (parent) => {
             let curEvent = await getCachedEvent(parent.event)
             let cur_ddl = curEvent ? curEvent.deadline_time : 0

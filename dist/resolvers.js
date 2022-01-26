@@ -287,10 +287,13 @@ var resolvers = {
     Player: {
         team: function (parent) { return getTeam(parent.team); },
         live: function (parent, args) { return __awaiter(void 0, void 0, void 0, function () {
-            var elements;
+            var eventId, elements;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getEventLive(args.event)];
+                    case 0:
+                        console.log(parent);
+                        eventId = (args === null || args === void 0 ? void 0 : args.event) ? args.event : parent.eventId;
+                        return [4 /*yield*/, getEventLive(eventId)];
                     case 1:
                         elements = _a.sent();
                         return [2 /*return*/, elements.find(function (el) { return el.id == parent.id; })];
@@ -400,8 +403,12 @@ var resolvers = {
         time: function (parent) {
             return new vdate_1.default(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss');
         },
-        player_in: function (parent) { return getPlayer(parent.element_in); },
-        player_out: function (parent) { return getPlayer(parent.element_out); },
+        player_in: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.element_in)), { eventId: parent.event });
+        },
+        player_out: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.element_out)), { eventId: parent.event });
+        },
         cur_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
             var curEvent, cur_ddl;
             return __generator(this, function (_a) {
