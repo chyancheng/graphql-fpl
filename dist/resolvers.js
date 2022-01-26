@@ -291,7 +291,6 @@ var resolvers = {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log(parent);
                         eventId = (args === null || args === void 0 ? void 0 : args.event) ? args.event : parent.eventId;
                         return [4 /*yield*/, getEventLive(eventId)];
                     case 1:
@@ -302,11 +301,21 @@ var resolvers = {
         }); },
     },
     Event: {
-        most_selected: function (parent) { return getPlayer(parent.most_selected); },
-        most_transferred_in: function (parent) { return getPlayer(parent.most_transferred_in); },
-        top_element: function (parent) { return getPlayer(parent.top_element); },
-        most_captained: function (parent) { return getPlayer(parent.most_captained); },
-        most_vice_captained: function (parent) { return getPlayer(parent.most_transferred_in); },
+        most_selected: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.most_selected)), { eventId: parent.id });
+        },
+        most_transferred_in: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.most_transferred_in)), { eventId: parent.id });
+        },
+        top_element: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.top_element)), { eventId: parent.id });
+        },
+        most_captained: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.most_captained)), { eventId: parent.id });
+        },
+        most_vice_captained: function (parent) {
+            return __assign(__assign({}, getPlayer(parent.most_vice_captained)), { eventId: parent.id });
+        },
         fixtures: function (parent) {
             var id = parent.id;
             var cached = cache.get('fixtures');

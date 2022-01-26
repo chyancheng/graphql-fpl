@@ -201,7 +201,6 @@ const resolvers = {
     Player: {
         team: (parent) => getTeam(parent.team),
         live: async (parent, args) => {
-            console.log(parent)
             let eventId = args?.event ? args.event : parent.eventId
             let elements = await getEventLive(eventId)
             return elements.find((el) => el.id == parent.id)
@@ -209,11 +208,21 @@ const resolvers = {
     },
 
     Event: {
-        most_selected: (parent) => getPlayer(parent.most_selected),
-        most_transferred_in: (parent) => getPlayer(parent.most_transferred_in),
-        top_element: (parent) => getPlayer(parent.top_element),
-        most_captained: (parent) => getPlayer(parent.most_captained),
-        most_vice_captained: (parent) => getPlayer(parent.most_transferred_in),
+        most_selected: (parent) => {
+            return { ...getPlayer(parent.most_selected), eventId: parent.id }
+        },
+        most_transferred_in: (parent) => {
+            return { ...getPlayer(parent.most_transferred_in), eventId: parent.id }
+        },
+        top_element: (parent) => {
+            return { ...getPlayer(parent.top_element), eventId: parent.id }
+        },
+        most_captained: (parent) => {
+            return { ...getPlayer(parent.most_captained), eventId: parent.id }
+        },
+        most_vice_captained: (parent) => {
+            return { ...getPlayer(parent.most_vice_captained), eventId: parent.id }
+        },
         fixtures: (parent) => {
             const { id } = parent
             const cached = cache.get('fixtures') as any[]

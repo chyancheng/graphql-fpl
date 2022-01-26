@@ -49,7 +49,7 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
     name
     most_transferred_in {
       web_name
-      live(event: 23) {
+      live {
         stats {
           total_points
         }
@@ -82,6 +82,35 @@ Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
     }
     last_ddl
     cur_ddl
+  }
+  entryHistory(id: 2) {
+    current {
+      points
+      total_points
+      rank
+      points_on_bench
+      event {
+        id 
+      }
+      transfers {
+        time
+        last_ddl
+        cur_ddl
+        player_in {
+          web_name
+          event_points
+          live {
+            stats {
+              total_points
+            }
+          }
+        }
+      }
+    }
+    chips {
+      name
+      event
+    }
   }
 }
 
