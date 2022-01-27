@@ -32,7 +32,6 @@ request(`${baseURI}/bootstrap-static/`).then((json) => {
     cache.set('events', json.events)
     cache.set('teams', json.teams)
     cache.set('players', json.elements)
-    cache.set('fixtures', json)
 })
 
 const getTeam = (id) => {
@@ -117,7 +116,7 @@ const resolvers = {
             const { id } = args
             let cached = cache.get('fixtures') as any[]
             if (cached == undefined) {
-                return request(`${baseURI}/bootstrap-static/`).then((json) => {
+                return request(`${baseURI}/fixtures/`).then((json) => {
                     cache.set('fixtures', json)
                     return json.find((f) => f.id == id)
                 })
@@ -125,7 +124,8 @@ const resolvers = {
             return cached.find((f) => f.id == id)
         },
 
-        player: (_, args) => (args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName)),
+        player: (_, args) =>
+            args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName),
 
         entry: async (_, args) => {
             return await request(`${baseURI}/entry/${args.entryId}/`)
@@ -185,10 +185,12 @@ const resolvers = {
     },
 
     Fixture: {
-        team_h: (parent) => getTeam(parent.team_h),
-
-        team_a: (parent) => getTeam(parent.team_a),
-
+        team_h: (parent) => {
+            return { ...getTeam(parent.team_h), teamId: parent.team_h }
+        },
+        team_a: (parent) => {
+            return { ...getTeam(parent.team_a), teamId: parent.team_a }
+        },
         stats: (parent) => parent.stats.filter((x) => x.a.length + x.h.length !== 0),
     },
 
@@ -243,7 +245,14 @@ const resolvers = {
                 return { ...item, entryId: parent.entryId }
             })
         },
-        chips: (parent) => parent.chips,
+        chips: (parent) => {
+            return parent.chips.map((item) => {
+                return {
+                    ...item,
+                    time: new VDate(new Date(parent.item).getTime()).format('YYYY-MM-DD HH:mm:ss'),
+                }
+            })
+        },
     },
 
     EventHistory: {

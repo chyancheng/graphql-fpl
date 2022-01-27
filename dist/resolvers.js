@@ -82,7 +82,6 @@ request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
     cache.set('events', json.events);
     cache.set('teams', json.teams);
     cache.set('players', json.elements);
-    cache.set('fixtures', json);
 });
 var getTeam = function (id) {
     var cached = cache.get('teams');
@@ -179,14 +178,16 @@ var resolvers = {
             var id = args.id;
             var cached = cache.get('fixtures');
             if (cached == undefined) {
-                return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+                return request("".concat(baseURI, "/fixtures/")).then(function (json) {
                     cache.set('fixtures', json);
                     return json.find(function (f) { return f.id == id; });
                 });
             }
             return cached.find(function (f) { return f.id == id; });
         },
-        player: function (_, args) { return (args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName)); },
+        player: function (_, args) {
+            return args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName);
+        },
         entry: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -273,8 +274,12 @@ var resolvers = {
         },
     },
     Fixture: {
-        team_h: function (parent) { return getTeam(parent.team_h); },
-        team_a: function (parent) { return getTeam(parent.team_a); },
+        team_h: function (parent) {
+            return __assign(__assign({}, getTeam(parent.team_h)), { teamId: parent.team_h });
+        },
+        team_a: function (parent) {
+            return __assign(__assign({}, getTeam(parent.team_a)), { teamId: parent.team_a });
+        },
         stats: function (parent) { return parent.stats.filter(function (x) { return x.a.length + x.h.length !== 0; }); },
     },
     FixtureStat: {
@@ -333,7 +338,11 @@ var resolvers = {
                 return __assign(__assign({}, item), { entryId: parent.entryId });
             });
         },
-        chips: function (parent) { return parent.chips; },
+        chips: function (parent) {
+            return parent.chips.map(function (item) {
+                return __assign(__assign({}, item), { time: new vdate_1.default(new Date(parent.item).getTime()).format('YYYY-MM-DD HH:mm:ss') });
+            });
+        },
     },
     EventHistory: {
         event: function (parent) {
