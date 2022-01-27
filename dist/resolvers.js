@@ -51,34 +51,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var node_cache_1 = __importDefault(require("node-cache"));
-var axios_1 = __importDefault(require("axios"));
 var vdate_1 = __importDefault(require("./util/vdate"));
+var loaders_1 = require("./loaders");
 var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
-var baseURI = 'https://fantasy.premierleague.com/api';
-var request = function (url) {
-    var cachedData = cache.get(url);
-    if (cachedData == undefined) {
-        return axios_1.default
-            .get(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'graphql-fpl',
-            },
-        })
-            .then(function (response) {
-            console.info("request: ".concat(url));
-            cache.set(url, response.data);
-            return response.data;
-        });
-    }
-    else {
-        return new Promise(function (resolve) {
-            resolve(cachedData);
-        });
-    }
-};
 // get bootstrap info and cached
-request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+loaders_1.bootStrapLoader.load('data').then(function (json) {
     cache.set('events', json.events);
     cache.set('teams', json.teams);
     cache.set('players', json.elements);
@@ -86,7 +63,7 @@ request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
 var getTeam = function (id) {
     var cached = cache.get('teams');
     if (cached == undefined) {
-        return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+        return loaders_1.bootStrapLoader.load('data').then(function (json) {
             cache.set('teams', json.teams);
             return json.teams.find(function (t) { return t.id == id; });
         });
@@ -108,7 +85,7 @@ var getTeamShortName = function (id) { return __awaiter(void 0, void 0, void 0, 
 var getPlayer = function (id) {
     var cached = cache.get('players');
     if (cached == undefined) {
-        return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+        return loaders_1.bootStrapLoader.load('data').then(function (json) {
             cache.set('players', json.elements);
             return json.elements.find(function (p) { return p.id == id; });
         });
@@ -119,7 +96,7 @@ var getPlayer = function (id) {
 var getPlayerByName = function (web_name) {
     var cached = cache.get('players');
     if (cached == undefined) {
-        return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+        return loaders_1.bootStrapLoader.load('data').then(function (json) {
             cache.set('players', json.elements);
             return json.elements.find(function (p) { return p.web_name === web_name; });
         });
@@ -127,18 +104,13 @@ var getPlayerByName = function (web_name) {
     return cached.find(function (p) { return p.web_name == web_name; });
 };
 var getEventLive = function (event) { return __awaiter(void 0, void 0, void 0, function () {
-    var cached, data;
+    var data;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                cached = cache.get('events-' + event);
-                if (!(cached == undefined)) return [3 /*break*/, 2];
-                return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(event, "/live/"))];
+            case 0: return [4 /*yield*/, loaders_1.EventLiveLoader.load(event)];
             case 1:
                 data = _a.sent();
-                cache.set('events-' + event, data.elements);
                 return [2 /*return*/, data.elements];
-            case 2: return [2 /*return*/, cached];
         }
     });
 }); };
@@ -149,7 +121,7 @@ var getCachedEvent = function (id) { return __awaiter(void 0, void 0, void 0, fu
             case 0:
                 cached = cache.get('events');
                 if (!(cached == undefined)) return [3 /*break*/, 2];
-                return [4 /*yield*/, request("".concat(baseURI, "/bootstrap-static/"))];
+                return [4 /*yield*/, loaders_1.bootStrapLoader.load('data')];
             case 1:
                 events = (_a.sent()).events;
                 cache.set('events', events);
@@ -166,7 +138,7 @@ var resolvers = {
         events: function () {
             var cached = cache.get('events');
             if (cached == undefined) {
-                return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+                return loaders_1.bootStrapLoader.load('data').then(function (json) {
                     cache.set('events', json);
                     return json;
                 });
@@ -178,7 +150,7 @@ var resolvers = {
             var id = args.id;
             var cached = cache.get('fixtures');
             if (cached == undefined) {
-                return request("".concat(baseURI, "/fixtures/")).then(function (json) {
+                loaders_1.FixturesLoader.load('data').then(function (json) {
                     cache.set('fixtures', json);
                     return json.find(function (f) { return f.id == id; });
                 });
@@ -191,7 +163,7 @@ var resolvers = {
         entry: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EntryLoader.load(args.entryId)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -200,7 +172,7 @@ var resolvers = {
             var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/history/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EntryHistoryLoader.load(args.entryId)];
                     case 1:
                         data = _a.sent();
                         return [2 /*return*/, __assign(__assign({}, data), { entryId: args.entryId })];
@@ -211,7 +183,7 @@ var resolvers = {
             var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/event/").concat(args.event, "/live/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EventLiveLoader.load(args.event)];
                     case 1:
                         data = _a.sent();
                         return [2 /*return*/, data.elements.find(function (el) { return el.id == args.playerId; })];
@@ -221,7 +193,7 @@ var resolvers = {
         picks: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/event/").concat(args.event, "/picks/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EntryPicksLoader.load([args.entryId, args.event])];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -229,7 +201,7 @@ var resolvers = {
         playerSummary: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/element-summary/").concat(args.playerId, "/"))];
+                    case 0: return [4 /*yield*/, loaders_1.PlayerSummaryLoader.load(args.playerId)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -237,35 +209,35 @@ var resolvers = {
         transfers: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(args.entryId, "/transfers/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EntryTransfersLoader.load(args.entryId)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         }); },
     },
     Entry: {
-        player_full_name: function (parent) {
-            var player_first_name = parent.player_first_name, player_last_name = parent.player_last_name;
+        player_full_name: function (ctx) {
+            var player_first_name = ctx.player_first_name, player_last_name = ctx.player_last_name;
             return player_first_name + ' ' + player_last_name;
         },
     },
     Team: {
-        players: function (parent) {
-            var teamId = parent.teamId;
+        players: function (ctx) {
+            var teamId = ctx.teamId;
             var cached = cache.get('players');
             if (cache.get('players') == undefined) {
-                return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
+                return loaders_1.bootStrapLoader.load('data').then(function (json) {
                     cache.set('players', json.elements);
                     return json.elements.filter(function (p) { return p.team == teamId; });
                 });
             }
             return cached.filter(function (p) { return p.team == teamId; });
         },
-        fixtures: function (parent) {
-            var id = parent.id;
+        fixtures: function (ctx) {
+            var id = ctx.id;
             var cached = cache.get('fixtures');
             if (cached == undefined) {
-                return request("".concat(baseURI, "/fixtures/")).then(function (json) {
+                loaders_1.FixturesLoader.load('data').then(function (json) {
                     cache.set('fixtures', json);
                     return json.filter(function (x) { return x.team_a == id || x.team_a == id; });
                 });
@@ -274,119 +246,118 @@ var resolvers = {
         },
     },
     Fixture: {
-        team_h: function (parent) {
-            return __assign(__assign({}, getTeam(parent.team_h)), { teamId: parent.team_h });
+        team_h: function (ctx) {
+            return __assign(__assign({}, getTeam(ctx.team_h)), { teamId: ctx.team_h });
         },
-        team_a: function (parent) {
-            return __assign(__assign({}, getTeam(parent.team_a)), { teamId: parent.team_a });
+        team_a: function (ctx) {
+            return __assign(__assign({}, getTeam(ctx.team_a)), { teamId: ctx.team_a });
         },
-        stats: function (parent) { return parent.stats.filter(function (x) { return x.a.length + x.h.length !== 0; }); },
+        stats: function (ctx) { return ctx.stats.filter(function (x) { return x.a.length + x.h.length !== 0; }); },
     },
     FixtureStat: {
-        player: function (parent) { return getPlayer(parent.element); },
+        player: function (ctx) { return getPlayer(ctx.element); },
     },
     Player: {
-        team: function (parent) { return getTeam(parent.team); },
-        live: function (parent, args) { return __awaiter(void 0, void 0, void 0, function () {
+        team: function (ctx) { return getTeam(ctx.team); },
+        live: function (ctx, args) { return __awaiter(void 0, void 0, void 0, function () {
             var event, elements;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        event = (args === null || args === void 0 ? void 0 : args.event) ? args.event : parent.event;
+                        event = (args === null || args === void 0 ? void 0 : args.event) ? args.event : ctx.event;
                         return [4 /*yield*/, getEventLive(event)];
                     case 1:
                         elements = _a.sent();
-                        return [2 /*return*/, elements.find(function (el) { return el.id == parent.id; })];
+                        return [2 /*return*/, elements.find(function (el) { return el.id == ctx.id; })];
                 }
             });
         }); },
     },
     Event: {
-        most_selected: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_selected)), { event: parent.id });
+        most_selected: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.most_selected)), { event: ctx.id });
         },
-        most_transferred_in: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_transferred_in)), { event: parent.id });
+        most_transferred_in: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.most_transferred_in)), { event: ctx.id });
         },
-        top_element: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.top_element)), { event: parent.id });
+        top_element: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.top_element)), { event: ctx.id });
         },
-        most_captained: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_captained)), { event: parent.id });
+        most_captained: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.most_captained)), { event: ctx.id });
         },
-        most_vice_captained: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.most_vice_captained)), { event: parent.id });
+        most_vice_captained: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.most_vice_captained)), { event: ctx.id });
         },
-        fixtures: function (parent) {
-            var id = parent.id;
+        fixtures: function (ctx) {
+            var id = ctx.id;
             var cached = cache.get('fixtures');
             if (cached == undefined) {
-                return request("".concat(baseURI, "/fixtures/")).then(function (json) {
+                loaders_1.FixturesLoader.load('data').then(function (json) {
                     cache.set('fixtures', json);
                     return json.filter(function (f) { return f.event == id; });
                 });
             }
             return cached.filter(function (f) { return f.event == id; });
         },
-        deadline_time: function (parent) {
-            return new vdate_1.default(new Date(parent.deadline_time).getTime()).format('YYYY-MM-DD HH:mm:ss');
+        deadline_time: function (ctx) {
+            return new vdate_1.default(new Date(ctx.deadline_time).getTime()).format('YYYY-MM-DD HH:mm:ss');
         },
     },
     EntryHistory: {
-        current: function (parent) {
-            return parent.current.map(function (item) { return __awaiter(void 0, void 0, void 0, function () {
+        current: function (ctx) {
+            return ctx.current.map(function (item) { return __awaiter(void 0, void 0, void 0, function () {
                 var picks;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.entryId, "/event/").concat(item.event, "/picks/"))];
+                        case 0: return [4 /*yield*/, loaders_1.EntryPicksLoader.load([ctx.entryId, item.event])];
                         case 1:
                             picks = _a.sent();
-                            return [2 /*return*/, __assign(__assign({}, item), { entryId: parent.entryId, picks: picks })];
+                            return [2 /*return*/, __assign(__assign({}, item), { entryId: ctx.entryId, picks: picks })];
                     }
                 });
             }); });
         },
-        chips: function (parent) {
-            return parent.chips.map(function (item) {
-                return __assign(__assign({}, item), { time: new vdate_1.default(new Date(parent.item).getTime()).format('YYYY-MM-DD HH:mm:ss') });
+        chips: function (ctx) {
+            return ctx.chips.map(function (item) {
+                return __assign(__assign({}, item), { time: new vdate_1.default(new Date(ctx.item).getTime()).format('YYYY-MM-DD HH:mm:ss') });
             });
         },
     },
     EventHistory: {
-        event: function (parent) {
-            return request("".concat(baseURI, "/bootstrap-static/")).then(function (json) {
-                return json.events.find(function (g) { return g.id == parent.event; });
-            });
+        event: function (ctx) {
+            return loaders_1.bootStrapLoader
+                .load('data')
+                .then(function (json) { return json.events.find(function (g) { return g.id == ctx.event; }); });
         },
-        transfers: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
+        transfers: function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
             var data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.entryId, "/transfers/"))];
+                    case 0: return [4 /*yield*/, loaders_1.EntryTransfersLoader.load(ctx.entryId)];
                     case 1:
                         data = _a.sent();
-                        return [2 /*return*/, data.filter(function (item) { return item.event === parent.event; })];
+                        return [2 /*return*/, data.filter(function (item) { return item.event === ctx.event; })];
                 }
             });
         }); },
     },
     Live: {
-        player: function (parent) { return getPlayer(parent.id); },
-        explain: function (parent) { return parent.explain[0]; },
+        player: function (ctx) { return getPlayer(ctx.id); },
+        explain: function (ctx) { return ctx.explain[0]; },
     },
     Explain: {
-        fixture: function (parent) {
-            var id = parent.fixture;
-            return request("".concat(baseURI, "/fixtures/")).then(function (json) { return json.find(function (f) { return f.id == id; }); });
+        fixture: function (ctx) {
+            return loaders_1.FixturesLoader.load('data').then(function (json) { return json.find(function (f) { return f.id == ctx.fixture; }); });
         },
     },
     Pick: {
-        player: function (parent) { return getPlayer(parent.element); },
+        player: function (ctx) { return getPlayer(ctx.element); },
     },
     PlayerSummary: {
-        fixtures: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
+        fixtures: function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, parent.fixtures.map(function (fx) { return __awaiter(void 0, void 0, void 0, function () {
+                return [2 /*return*/, ctx.fixtures.map(function (fx) { return __awaiter(void 0, void 0, void 0, function () {
                         var _a;
                         var _b;
                         return __generator(this, function (_c) {
@@ -404,8 +375,8 @@ var resolvers = {
                     }); })];
             });
         }); },
-        history: function (parent) {
-            return parent.history.map(function (h) { return __awaiter(void 0, void 0, void 0, function () {
+        history: function (ctx) {
+            return ctx.history.map(function (h) { return __awaiter(void 0, void 0, void 0, function () {
                 var _a;
                 var _b;
                 return __generator(this, function (_c) {
@@ -421,20 +392,20 @@ var resolvers = {
         },
     },
     Transfers: {
-        time: function (parent) {
-            return new vdate_1.default(new Date(parent.time).getTime()).format('YYYY-MM-DD HH:mm:ss');
+        time: function (ctx) {
+            return new vdate_1.default(new Date(ctx.time).getTime()).format('YYYY-MM-DD HH:mm:ss');
         },
-        player_in: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.element_in)), { event: parent.event });
+        player_in: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.element_in)), { event: ctx.event });
         },
-        player_out: function (parent) {
-            return __assign(__assign({}, getPlayer(parent.element_out)), { event: parent.event });
+        player_out: function (ctx) {
+            return __assign(__assign({}, getPlayer(ctx.element_out)), { event: ctx.event });
         },
-        cur_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
+        cur_ddl: function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
             var curEvent, cur_ddl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getCachedEvent(parent.event)];
+                    case 0: return [4 /*yield*/, getCachedEvent(ctx.event)];
                     case 1:
                         curEvent = _a.sent();
                         cur_ddl = curEvent ? curEvent.deadline_time : 0;
@@ -442,11 +413,11 @@ var resolvers = {
                 }
             });
         }); },
-        last_ddl: function (parent) { return __awaiter(void 0, void 0, void 0, function () {
+        last_ddl: function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
             var lastEvent, last_ddl;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getCachedEvent(parent.event - 1)];
+                    case 0: return [4 /*yield*/, getCachedEvent(ctx.event - 1)];
                     case 1:
                         lastEvent = _a.sent();
                         last_ddl = lastEvent ? lastEvent.deadline_time : 0;

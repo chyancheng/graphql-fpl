@@ -13,61 +13,61 @@ declare const resolvers: {
         transfers: (_: any, args: any) => Promise<any>;
     };
     Entry: {
-        player_full_name: (parent: any) => string;
+        player_full_name: (ctx: any) => string;
     };
     Team: {
-        players: (parent: any) => any[] | Promise<any>;
-        fixtures: (parent: any) => any[] | Promise<any>;
+        players: (ctx: any) => any[] | Promise<any>;
+        fixtures: (ctx: any) => any[];
     };
     Fixture: {
-        team_h: (parent: any) => any;
-        team_a: (parent: any) => any;
-        stats: (parent: any) => any;
+        team_h: (ctx: any) => any;
+        team_a: (ctx: any) => any;
+        stats: (ctx: any) => any;
     };
     FixtureStat: {
-        player: (parent: any) => any;
+        player: (ctx: any) => any;
     };
     Player: {
-        team: (parent: any) => any;
-        live: (parent: any, args: any) => Promise<any>;
+        team: (ctx: any) => any;
+        live: (ctx: any, args: any) => Promise<any>;
     };
     Event: {
-        most_selected: (parent: any) => any;
-        most_transferred_in: (parent: any) => any;
-        top_element: (parent: any) => any;
-        most_captained: (parent: any) => any;
-        most_vice_captained: (parent: any) => any;
-        fixtures: (parent: any) => any[] | Promise<any>;
-        deadline_time: (parent: any) => any;
+        most_selected: (ctx: any) => any;
+        most_transferred_in: (ctx: any) => any;
+        top_element: (ctx: any) => any;
+        most_captained: (ctx: any) => any;
+        most_vice_captained: (ctx: any) => any;
+        fixtures: (ctx: any) => any[];
+        deadline_time: (ctx: any) => any;
     };
     EntryHistory: {
-        current: (parent: any) => any;
-        chips: (parent: any) => any;
+        current: (ctx: any) => any;
+        chips: (ctx: any) => any;
     };
     EventHistory: {
-        event: (parent: any) => Promise<any>;
-        transfers: (parent: any) => Promise<any>;
+        event: (ctx: any) => Promise<any>;
+        transfers: (ctx: any) => Promise<any>;
     };
     Live: {
-        player: (parent: any) => any;
-        explain: (parent: any) => any;
+        player: (ctx: any) => any;
+        explain: (ctx: any) => any;
     };
     Explain: {
-        fixture: (parent: any) => Promise<any>;
+        fixture: (ctx: any) => Promise<any>;
     };
     Pick: {
-        player: (parent: any) => any;
+        player: (ctx: any) => any;
     };
     PlayerSummary: {
-        fixtures: (parent: any) => Promise<any>;
-        history: (parent: any) => any;
+        fixtures: (ctx: any) => Promise<any>;
+        history: (ctx: any) => any;
     };
     Transfers: {
-        time: (parent: any) => any;
-        player_in: (parent: any) => any;
-        player_out: (parent: any) => any;
-        cur_ddl: (parent: any) => Promise<any>;
-        last_ddl: (parent: any) => Promise<any>;
+        time: (ctx: any) => any;
+        player_in: (ctx: any) => any;
+        player_out: (ctx: any) => any;
+        cur_ddl: (ctx: any) => Promise<any>;
+        last_ddl: (ctx: any) => Promise<any>;
     };
 };
 export default resolvers;

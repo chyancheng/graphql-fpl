@@ -10,8 +10,8 @@
     "prebuild": "rimraf ./dist",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-		"watch-node": "nodemon dist/index.js",
-		"watch-node-debug": "nodemon --inspect dist/index.js",
+    "watch-node": "nodemon dist/index.js",
+    "watch-node-debug": "nodemon --inspect dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.24.0",
+    "dataloader": "^2.0.0",
     "graphql-yoga": "^1.18.2",
     "node-cache": "^4.2.1"
   },
