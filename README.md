@@ -1,6 +1,6 @@
 # fpl-graphql
 
-A GraphQL wrapper for the Fantasy Premier League API, using node and graphql-yoga. [Demo](http://graphql-fpl.herokuapp.com/)
+A GraphQL wrapper for the Fantasy Premier League API, using node and graphql-yoga. [Demo](https://graphql4fpl.herokuapp.com/)
 
 # Important notice
 
@@ -36,11 +36,6 @@ npm start
 ```
 
 The server will run at http://localhost:4000 with a graphql playground (browse docs and schema to know more about queries)
-
-### Example
-
-![2019-09-05 19_46_36-Playground - http___localhost_4000_](https://user-images.githubusercontent.com/16566237/64362042-d3a65380-d01e-11e9-9abe-cddfc84e5469.png)
-Aguero's live stats for the 4the gameweek. You didn't captain him did you ?
 
 ### Example Query
 ```
