@@ -6,9 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var graphql_yoga_1 = require("graphql-yoga");
 var resolvers_1 = __importDefault(require("./resolvers"));
 var server = new graphql_yoga_1.GraphQLServer({
-    typeDefs: "src/schema.graphql",
-    resolvers: resolvers_1.default
+    typeDefs: 'src/schema.graphql',
+    resolvers: resolvers_1.default,
 });
-server.start(function () {
-    return console.log("The server is running on http://localhost:4000");
-});
+server.start({
+    cors: {
+        credentials: true,
+        origin: ['http://localhost:3000'],
+    },
+}, function () { return console.log("The server is running on http://localhost:4000"); });
