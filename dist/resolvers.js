@@ -334,9 +334,17 @@ var resolvers = {
     },
     EntryHistory: {
         current: function (parent) {
-            return parent.current.map(function (item) {
-                return __assign(__assign({}, item), { entryId: parent.entryId });
-            });
+            return parent.current.map(function (item) { return __awaiter(void 0, void 0, void 0, function () {
+                var picks;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, request("".concat(baseURI, "/entry/").concat(parent.entryId, "/event/").concat(item.event, "/picks/"))];
+                        case 1:
+                            picks = _a.sent();
+                            return [2 /*return*/, __assign(__assign({}, item), { entryId: parent.entryId, picks: picks })];
+                    }
+                });
+            }); });
         },
         chips: function (parent) {
             return parent.chips.map(function (item) {

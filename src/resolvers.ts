@@ -241,8 +241,11 @@ const resolvers = {
 
     EntryHistory: {
         current: (parent) => {
-            return parent.current.map((item) => {
-                return { ...item, entryId: parent.entryId }
+            return parent.current.map(async (item) => {
+                let picks = await request(
+                    `${baseURI}/entry/${parent.entryId}/event/${item.event}/picks/`
+                )
+                return { ...item, entryId: parent.entryId, picks }
             })
         },
         chips: (parent) => {
