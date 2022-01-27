@@ -1,7 +1,5 @@
 import NodeCache from 'node-cache'
-import axios from 'axios'
 import VDate from './util/vdate'
-import DataLoader from 'dataloader'
 
 import {
     bootStrapLoader,
