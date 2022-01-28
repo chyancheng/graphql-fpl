@@ -9,7 +9,8 @@ import {
     EntryLoader,
     FixturesLoader,
     EntryPicksLoader,
-    PlayerSummaryLoader
+    PlayerSummaryLoader,
+    LeagueLoader,
 } from './loaders'
 
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
@@ -133,6 +134,10 @@ const resolvers = {
 
         transfers: async (_, args) => {
             return await EntryTransfersLoader.load(args.entryId)
+        },
+
+        league: async (_, args) => {
+            return await LeagueLoader.load([args.leagueId, args.pageIndex])
         },
     },
     Entry: {

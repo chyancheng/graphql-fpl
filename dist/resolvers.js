@@ -214,6 +214,14 @@ var resolvers = {
                 }
             });
         }); },
+        league: function (_, args) { return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, loaders_1.LeagueLoader.load([args.leagueId, args.pageIndex])];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        }); },
     },
     Entry: {
         player_full_name: function (ctx) {

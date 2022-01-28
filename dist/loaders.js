@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlayerSummaryLoader = exports.EntryPicksLoader = exports.FixturesLoader = exports.EntryLoader = exports.EntryTransfersLoader = exports.EntryHistoryLoader = exports.EventLiveLoader = exports.bootStrapLoader = void 0;
+exports.LeagueLoader = exports.PlayerSummaryLoader = exports.EntryPicksLoader = exports.FixturesLoader = exports.EntryLoader = exports.EntryTransfersLoader = exports.EntryHistoryLoader = exports.EventLiveLoader = exports.bootStrapLoader = void 0;
 var dataloader_1 = __importDefault(require("dataloader"));
 var axios_1 = __importDefault(require("axios"));
 var node_cache_1 = __importDefault(require("node-cache"));
@@ -208,6 +208,27 @@ exports.PlayerSummaryLoader = new dataloader_1.default(function (playerIds) { re
                         }
                     });
                 }); }))];
+            case 1:
+                dataArray = _a.sent();
+                return [2 /*return*/, dataArray];
+        }
+    });
+}); });
+exports.LeagueLoader = new dataloader_1.default(function (infos) { return __awaiter(void 0, void 0, void 0, function () {
+    var dataArray;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, Promise.all(infos.map(function (_a) {
+                    var leagueId = _a[0], _b = _a[1], pageIndex = _b === void 0 ? 1 : _b;
+                    return __awaiter(void 0, void 0, void 0, function () {
+                        return __generator(this, function (_c) {
+                            switch (_c.label) {
+                                case 0: return [4 /*yield*/, request("".concat(baseURI, "/leagues-classic/").concat(leagueId, "/standings/?page_new_entries=1&page_standings=").concat(pageIndex, "&phase=1"))];
+                                case 1: return [2 /*return*/, _c.sent()];
+                            }
+                        });
+                    });
+                }))];
             case 1:
                 dataArray = _a.sent();
                 return [2 /*return*/, dataArray];

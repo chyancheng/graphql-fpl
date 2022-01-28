@@ -40,6 +40,10 @@ type Query {
     Query the transfers data of a manager
     """
     transfers(entryId: ID!): [Transfers!]
+    """
+    Query the data of a classic league
+    """
+    league(leagueId: ID!, pageIndex: Int): League!
 }
 
 type Team {
@@ -373,4 +377,45 @@ type Transfers {
     player_out: Player
     last_ddl: String
     cur_ddl: String
+}
+
+
+type League {
+    last_updated_data: String!
+    league: LeagueInfo
+    standings: LeagueStandings
+}
+
+type LeagueInfo {
+    admin_entry: ID!
+    closed: Boolean!
+    code_privacy: String!
+    created: String!
+    cup_league: Int
+    has_cup: Boolean!
+    id: ID!
+    league_type: String!
+    max_entries: Int
+    name: String!
+    rank: Int
+    scoring: String!
+    start_event: Int!
+}
+
+type LeagueStandings {
+    has_next: Boolean!
+    page: Int!
+    results: [LeagueStandingsResults!]
+}
+
+type LeagueStandingsResults {
+    entry: ID!
+    entry_name: String!
+    event_total: Int!
+    id: ID!
+    last_rank: Int!
+    player_name: String
+    rank: Int!
+    rank_sort: Int!
+    total: Int!
 }

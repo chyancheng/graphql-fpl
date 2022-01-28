@@ -7,3 +7,4 @@ export declare const EntryLoader: DataLoader<unknown, any, unknown>;
 export declare const FixturesLoader: DataLoader<unknown, any, unknown>;
 export declare const EntryPicksLoader: DataLoader<unknown, any, unknown>;
 export declare const PlayerSummaryLoader: DataLoader<unknown, any, unknown>;
+export declare const LeagueLoader: DataLoader<unknown, any, unknown>;

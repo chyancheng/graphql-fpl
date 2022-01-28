@@ -98,3 +98,14 @@ export const PlayerSummaryLoader = new DataLoader(async (playerIds) => {
     )
     return dataArray
 })
+
+export const LeagueLoader = new DataLoader(async (infos) => {
+    let dataArray = await Promise.all(
+        infos.map(async ([leagueId, pageIndex = 1]) => {
+            return await request(
+                `${baseURI}/leagues-classic/${leagueId}/standings/?page_new_entries=1&page_standings=${pageIndex}&phase=1`
+            )
+        })
+    )
+    return dataArray
+})

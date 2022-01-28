@@ -11,6 +11,7 @@ declare const resolvers: {
         picks: (_: any, args: any) => Promise<any>;
         playerSummary: (_: any, args: any) => Promise<any>;
         transfers: (_: any, args: any) => Promise<any>;
+        league: (_: any, args: any) => Promise<any>;
     };
     Entry: {
         player_full_name: (ctx: any) => string;
