@@ -434,5 +434,20 @@ var resolvers = {
             });
         }); },
     },
+    LeagueStandingsResults: {
+        entryHistory: function (ctx) { return __awaiter(void 0, void 0, void 0, function () {
+            var entryId, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        entryId = ctx.entry;
+                        return [4 /*yield*/, loaders_1.EntryHistoryLoader.load(entryId)];
+                    case 1:
+                        data = _a.sent();
+                        return [2 /*return*/, __assign(__assign({}, data), { entryId: entryId })];
+                }
+            });
+        }); }
+    }
 };
 exports.default = resolvers;

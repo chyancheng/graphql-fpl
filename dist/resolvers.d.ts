@@ -70,5 +70,8 @@ declare const resolvers: {
         cur_ddl: (ctx: any) => Promise<any>;
         last_ddl: (ctx: any) => Promise<any>;
     };
+    LeagueStandingsResults: {
+        entryHistory: (ctx: any) => Promise<any>;
+    };
 };
 export default resolvers;

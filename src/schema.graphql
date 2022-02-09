@@ -414,8 +414,14 @@ type LeagueStandingsResults {
     event_total: Int!
     id: ID!
     last_rank: Int!
-    player_name: String
+    player_name: String!
     rank: Int!
     rank_sort: Int!
     total: Int!
+    """
+    Caution: When query entryHistory for each league entry, It can only query for type chips.
+    Query the type current will produce too many requests (50 * 38) which will cause an error.
+    Or for a very mini-league (<5 entries) may be OK.
+    """
+    entryHistory: EntryHistory
 }

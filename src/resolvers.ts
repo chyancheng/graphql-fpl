@@ -308,6 +308,14 @@ const resolvers = {
             return new VDate(new Date(last_ddl).getTime()).format('YYYY-MM-DD HH:mm:ss')
         },
     },
+
+    LeagueStandingsResults: {
+        entryHistory: async (ctx) => {
+            let entryId = ctx.entry
+            let data = await EntryHistoryLoader.load(entryId)
+            return { ...data, entryId: entryId }
+        }
+    }
 }
 
 export default resolvers
