@@ -19,6 +19,8 @@ A GraphQL wrapper for the Fantasy Premier League API, using node and graphql-yog
   data for a given entry (a fantasy team) for the past gameweeks of the season, plus past seasons.
 - [https://fantasy.premierleague.com/api/entry/{entry_id}/event/{event_id}/picks/](https://fantasy.premierleague.com/api/entry/6043795/event/3/picks/) :
   data of picks of a given fpl team for a given entry (gameweek)
+- [https://fantasy.premierleague.com/api/leagues-classic/{league_id}/standings/?page_new_entries=1&page_standings={page_index}&phase=1](https://fantasy.premierleague.com/api/leagues-classic/249673/standings/?page_new_entries=1&page_standings=1&phase=1) :
+  data of a given classic league standings
 
 ## Usage
 
