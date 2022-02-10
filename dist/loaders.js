@@ -41,32 +41,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeagueLoader = exports.PlayerSummaryLoader = exports.EntryPicksLoader = exports.FixturesLoader = exports.EntryLoader = exports.EntryTransfersLoader = exports.EntryHistoryLoader = exports.EventLiveLoader = exports.bootStrapLoader = void 0;
 var dataloader_1 = __importDefault(require("dataloader"));
-var axios_1 = __importDefault(require("axios"));
+var node_fetch_1 = __importDefault(require("node-fetch"));
 var node_cache_1 = __importDefault(require("node-cache"));
 var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
 var baseURI = 'https://fantasy.premierleague.com/api';
-var request = function (url) {
-    var cachedData = cache.get(url);
-    if (cachedData == undefined) {
-        return axios_1.default
-            .get(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'graphql-fpl',
-            },
-        })
-            .then(function (response) {
-            console.info("request: ".concat(url));
-            cache.set(url, response.data);
-            return response.data;
-        });
-    }
-    else {
-        return new Promise(function (resolve) {
-            resolve(cachedData);
-        });
-    }
-};
+var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
+    var cachedData, response, data;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                cachedData = cache.get(url);
+                if (!(cachedData == undefined)) return [3 /*break*/, 3];
+                console.info("request: ".concat(url));
+                return [4 /*yield*/, (0, node_fetch_1.default)(url, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'graphql-fpl',
+                        },
+                    })];
+            case 1:
+                response = (_a.sent());
+                return [4 /*yield*/, response.json()];
+            case 2:
+                data = _a.sent();
+                cache.set(url, data);
+                return [2 /*return*/, data];
+            case 3: return [2 /*return*/, new Promise(function (resolve) {
+                    resolve(cachedData);
+                })];
+        }
+    });
+}); };
 exports.bootStrapLoader = new dataloader_1.default(function (keys) { return __awaiter(void 0, void 0, void 0, function () {
     var dataArray;
     return __generator(this, function (_a) {

@@ -1,25 +1,26 @@
 import DataLoader from 'dataloader'
-import axios from 'axios'
+import fetch from 'node-fetch'
 import NodeCache from 'node-cache'
 
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
 const baseURI = 'https://fantasy.premierleague.com/api'
 
-const request = (url) => {
+const request = async (url) => {
     let cachedData = cache.get(url)
     if (cachedData == undefined) {
-        return axios
-            .get(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'graphql-fpl',
-                },
-            })
-            .then((response) => {
-                console.info(`request: ${url}`)
-                cache.set(url, response.data)
-                return response.data
-            })
+        console.info(`request: ${url}`)
+
+        let response = (await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'graphql-fpl',
+            },
+        })) as any
+
+        let data = await response.json()
+        cache.set(url, data)
+        
+        return data
     } else {
         return new Promise((resolve) => {
             resolve(cachedData)

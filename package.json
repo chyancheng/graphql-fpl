@@ -18,10 +18,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.24.0",
     "dataloader": "^2.0.0",
     "graphql-yoga": "^1.18.2",
-    "node-cache": "^4.2.1"
+    "node-cache": "^4.2.1",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "concurrently": "^7.0.0",
