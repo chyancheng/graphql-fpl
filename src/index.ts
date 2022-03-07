@@ -10,7 +10,7 @@ server.start(
     {
         cors: {
             credentials: true,
-            origin: ['http://localhost:3000'],
+            origin: ['http://localhost:3000', 'https://fpl-season-highlight.herokuapp.com'],
         },
     },
     () => console.log(`The server is running on http://localhost:4000`)
