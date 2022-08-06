@@ -12,6 +12,6 @@ var server = new graphql_yoga_1.GraphQLServer({
 server.start({
     cors: {
         credentials: true,
-        origin: ['http://localhost:3000'],
+        origin: '*',
     },
 }, function () { return console.log("The server is running on http://localhost:4000"); });

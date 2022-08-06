@@ -43,7 +43,7 @@ exports.LeagueLoader = exports.PlayerSummaryLoader = exports.EntryPicksLoader = 
 var dataloader_1 = __importDefault(require("dataloader"));
 var node_fetch_1 = __importDefault(require("node-fetch"));
 var node_cache_1 = __importDefault(require("node-cache"));
-var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
+var cache = new node_cache_1.default();
 var baseURI = 'https://fantasy.premierleague.com/api';
 var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
     var cachedData, response, data;

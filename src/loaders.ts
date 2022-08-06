@@ -2,7 +2,7 @@ import DataLoader from 'dataloader'
 import fetch from 'node-fetch'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
+const cache = new NodeCache()
 const baseURI = 'https://fantasy.premierleague.com/api'
 
 const request = async (url) => {
