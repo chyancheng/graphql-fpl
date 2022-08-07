@@ -13,24 +13,29 @@ import {
     LeagueLoader,
 } from './loaders'
 
-const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
+// const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
 
 // get bootstrap info and cached
-bootStrapLoader.load('data').then((json) => {
-    cache.set('events', json.events)
-    cache.set('teams', json.teams)
-    cache.set('players', json.elements)
-})
+// bootStrapLoader.load('data').then((json) => {
+//     cache.set('events', json.events)
+//     cache.set('teams', json.teams)
+//     cache.set('players', json.elements)
+// })
 
 const getTeam = (id) => {
-    let cached = cache.get('teams') as any[]
-    if (cached == undefined) {
-        return bootStrapLoader.load('data').then((json) => {
-            cache.set('teams', json.teams)
-            return json.teams.find((t) => t.id == id)
-        })
-    }
-    return cached.find((t) => t.id == id)
+    return bootStrapLoader.load('data').then((json) => {
+        // cache.set('teams', json.teams)
+        return json.teams.find((t) => t.id == id)
+    })
+
+    // let cached = cache.get('teams') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('teams', json.teams)
+    //         return json.teams.find((t) => t.id == id)
+    //     })
+    // }
+    // return cached.find((t) => t.id == id)
 }
 
 const getTeamShortName = async (id) => {
@@ -39,26 +44,35 @@ const getTeamShortName = async (id) => {
 }
 
 const getPlayer = (id) => {
-    let cached = cache.get('players') as any[]
-    if (cached == undefined) {
-        return bootStrapLoader.load('data').then((json) => {
-            cache.set('players', json.elements)
-            return json.elements.find((p) => p.id == id)
-        })
-    }
-    let playerInfo = cached.find((p) => p.id == id)
-    return playerInfo
+    return bootStrapLoader.load('data').then((json) => {
+        // cache.set('players', json.elements)
+        return json.elements.find((p) => p.id == id)
+    })
+
+    // let cached = cache.get('players') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('players', json.elements)
+    //         return json.elements.find((p) => p.id == id)
+    //     })
+    // }
+    // let playerInfo = cached.find((p) => p.id == id)
+    // return playerInfo
 }
 
 const getPlayerByName = (web_name) => {
-    let cached = cache.get('players') as any[]
-    if (cached == undefined) {
-        return bootStrapLoader.load('data').then((json) => {
-            cache.set('players', json.elements)
-            return json.elements.find((p) => p.web_name === web_name)
-        })
-    }
-    return cached.find((p) => p.web_name == web_name)
+    return bootStrapLoader.load('data').then((json) => {
+        // cache.set('players', json.elements)
+        return json.elements.find((p) => p.web_name === web_name)
+    })
+    // let cached = cache.get('players') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('players', json.elements)
+    //         return json.elements.find((p) => p.web_name === web_name)
+    //     })
+    // }
+    // return cached.find((p) => p.web_name == web_name)
 }
 
 const getEventLive: any = async (event) => {
@@ -67,13 +81,17 @@ const getEventLive: any = async (event) => {
 }
 
 const getCachedEvent: any = async (id) => {
-    let cached = cache.get('events') as any[]
-    if (cached == undefined) {
-        let { events } = await bootStrapLoader.load('data')
-        cache.set('events', events)
-        return events.find((g) => g.id == id)
-    }
-    return cached.find((g) => g.id == id)
+    let { events } = await bootStrapLoader.load('data')
+    // cache.set('events', events)
+    return events.find((g) => g.id == id)
+
+    // let cached = cache.get('events') as any[]
+    // if (cached == undefined) {
+    //     let { events } = await bootStrapLoader.load('data')
+    //     cache.set('events', events)
+    //     return events.find((g) => g.id == id)
+    // }
+    // return cached.find((g) => g.id == id)
 }
 
 const resolvers = {
@@ -83,28 +101,37 @@ const resolvers = {
         },
 
         events: () => {
-            let cached = cache.get('events') as any[]
-            if (cached == undefined) {
-                return bootStrapLoader.load('data').then((json) => {
-                    cache.set('events', json)
-                    return json
-                })
-            }
-            return cached
+            return bootStrapLoader.load('data').then((json) => {
+                // cache.set('events', json)
+                return json
+            })
+            // let cached = cache.get('events') as any[]
+            // if (cached == undefined) {
+            //     return bootStrapLoader.load('data').then((json) => {
+            //         cache.set('events', json)
+            //         return json
+            //     })
+            // }
+            // return cached
         },
 
         team: (_, args) => getTeam(args.teamId),
 
         fixture: (_, args) => {
             const { id } = args
-            let cached = cache.get('fixtures') as any[]
-            if (cached == undefined) {
-                FixturesLoader.load('data').then((json) => {
-                    cache.set('fixtures', json)
-                    return json.find((f) => f.id == id)
-                })
-            }
-            return cached.find((f) => f.id == id)
+            FixturesLoader.load('data').then((json) => {
+                // cache.set('fixtures', json)
+                return json.find((f) => f.id == id)
+            })
+
+            // let cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.find((f) => f.id == id)
+            //     })
+            // }
+            // return cached.find((f) => f.id == id)
         },
 
         player: (_, args) =>
@@ -149,25 +176,33 @@ const resolvers = {
     Team: {
         players: (ctx) => {
             const { teamId } = ctx
-            let cached = cache.get('players') as any[]
-            if (cache.get('players') == undefined) {
-                return bootStrapLoader.load('data').then((json) => {
-                    cache.set('players', json.elements)
-                    return json.elements.filter((p) => p.team == teamId)
-                })
-            }
-            return cached.filter((p) => p.team == teamId)
+            return bootStrapLoader.load('data').then((json) => {
+                // cache.set('players', json.elements)
+                return json.elements.filter((p) => p.team == teamId)
+            })
+            // let cached = cache.get('players') as any[]
+            // if (cache.get('players') == undefined) {
+            //     return bootStrapLoader.load('data').then((json) => {
+            //         cache.set('players', json.elements)
+            //         return json.elements.filter((p) => p.team == teamId)
+            //     })
+            // }
+            // return cached.filter((p) => p.team == teamId)
         },
         fixtures: (ctx) => {
             const { id } = ctx
-            let cached = cache.get('fixtures') as any[]
-            if (cached == undefined) {
-                FixturesLoader.load('data').then((json) => {
-                    cache.set('fixtures', json)
-                    return json.filter((x) => x.team_a == id || x.team_a == id)
-                })
-            }
-            return cached.filter((x) => x.team_a == id || x.team_h == id)
+            FixturesLoader.load('data').then((json) => {
+                // cache.set('fixtures', json)
+                return json.filter((x) => x.team_a == id || x.team_a == id)
+            })
+            // let cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.filter((x) => x.team_a == id || x.team_a == id)
+            //     })
+            // }
+            // return cached.filter((x) => x.team_a == id || x.team_h == id)
         },
     },
 
@@ -212,14 +247,18 @@ const resolvers = {
         },
         fixtures: (ctx) => {
             const { id } = ctx
-            const cached = cache.get('fixtures') as any[]
-            if (cached == undefined) {
-                FixturesLoader.load('data').then((json) => {
-                    cache.set('fixtures', json)
-                    return json.filter((f) => f.event == id)
-                })
-            }
-            return cached.filter((f) => f.event == id)
+            FixturesLoader.load('data').then((json) => {
+                // cache.set('fixtures', json)
+                return json.filter((f) => f.event == id)
+            })
+            // const cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.filter((f) => f.event == id)
+            //     })
+            // }
+            // return cached.filter((f) => f.event == id)
         },
         deadline_time: (ctx) => {
             return new VDate(new Date(ctx.deadline_time).getTime()).format('YYYY-MM-DD HH:mm:ss')

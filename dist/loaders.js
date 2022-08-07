@@ -42,8 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeagueLoader = exports.PlayerSummaryLoader = exports.EntryPicksLoader = exports.FixturesLoader = exports.EntryLoader = exports.EntryTransfersLoader = exports.EntryHistoryLoader = exports.EventLiveLoader = exports.bootStrapLoader = void 0;
 var dataloader_1 = __importDefault(require("dataloader"));
 var node_fetch_1 = __importDefault(require("node-fetch"));
-var node_cache_1 = __importDefault(require("node-cache"));
-var cache = new node_cache_1.default();
+// const cache = new NodeCache()
 var baseURI = 'https://fantasy.premierleague.com/api';
 var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
     var response, data;
@@ -61,10 +60,12 @@ var request = function (url) { return __awaiter(void 0, void 0, void 0, function
                     })];
             case 1:
                 response = (_a.sent());
-                return [4 /*yield*/, response.json()];
+                return [4 /*yield*/, response.json()
+                    // cache.set(url, data)
+                ];
             case 2:
                 data = _a.sent();
-                cache.set(url, data);
+                // cache.set(url, data)
                 return [2 /*return*/, data
                     // } else {
                     //     return new Promise((resolve) => {

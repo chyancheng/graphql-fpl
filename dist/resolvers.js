@@ -50,25 +50,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var node_cache_1 = __importDefault(require("node-cache"));
 var vdate_1 = __importDefault(require("./util/vdate"));
 var loaders_1 = require("./loaders");
-var cache = new node_cache_1.default({ stdTTL: 3600, checkperiod: 3650 });
+// const cache = new NodeCache({ stdTTL: 3600, checkperiod: 3650 })
 // get bootstrap info and cached
-loaders_1.bootStrapLoader.load('data').then(function (json) {
-    cache.set('events', json.events);
-    cache.set('teams', json.teams);
-    cache.set('players', json.elements);
-});
+// bootStrapLoader.load('data').then((json) => {
+//     cache.set('events', json.events)
+//     cache.set('teams', json.teams)
+//     cache.set('players', json.elements)
+// })
 var getTeam = function (id) {
-    var cached = cache.get('teams');
-    if (cached == undefined) {
-        return loaders_1.bootStrapLoader.load('data').then(function (json) {
-            cache.set('teams', json.teams);
-            return json.teams.find(function (t) { return t.id == id; });
-        });
-    }
-    return cached.find(function (t) { return t.id == id; });
+    return loaders_1.bootStrapLoader.load('data').then(function (json) {
+        // cache.set('teams', json.teams)
+        return json.teams.find(function (t) { return t.id == id; });
+    });
+    // let cached = cache.get('teams') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('teams', json.teams)
+    //         return json.teams.find((t) => t.id == id)
+    //     })
+    // }
+    // return cached.find((t) => t.id == id)
 };
 var getTeamShortName = function (id) { return __awaiter(void 0, void 0, void 0, function () {
     var team;
@@ -83,25 +86,33 @@ var getTeamShortName = function (id) { return __awaiter(void 0, void 0, void 0, 
     });
 }); };
 var getPlayer = function (id) {
-    var cached = cache.get('players');
-    if (cached == undefined) {
-        return loaders_1.bootStrapLoader.load('data').then(function (json) {
-            cache.set('players', json.elements);
-            return json.elements.find(function (p) { return p.id == id; });
-        });
-    }
-    var playerInfo = cached.find(function (p) { return p.id == id; });
-    return playerInfo;
+    return loaders_1.bootStrapLoader.load('data').then(function (json) {
+        // cache.set('players', json.elements)
+        return json.elements.find(function (p) { return p.id == id; });
+    });
+    // let cached = cache.get('players') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('players', json.elements)
+    //         return json.elements.find((p) => p.id == id)
+    //     })
+    // }
+    // let playerInfo = cached.find((p) => p.id == id)
+    // return playerInfo
 };
 var getPlayerByName = function (web_name) {
-    var cached = cache.get('players');
-    if (cached == undefined) {
-        return loaders_1.bootStrapLoader.load('data').then(function (json) {
-            cache.set('players', json.elements);
-            return json.elements.find(function (p) { return p.web_name === web_name; });
-        });
-    }
-    return cached.find(function (p) { return p.web_name == web_name; });
+    return loaders_1.bootStrapLoader.load('data').then(function (json) {
+        // cache.set('players', json.elements)
+        return json.elements.find(function (p) { return p.web_name === web_name; });
+    });
+    // let cached = cache.get('players') as any[]
+    // if (cached == undefined) {
+    //     return bootStrapLoader.load('data').then((json) => {
+    //         cache.set('players', json.elements)
+    //         return json.elements.find((p) => p.web_name === web_name)
+    //     })
+    // }
+    // return cached.find((p) => p.web_name == web_name)
 };
 var getEventLive = function (event) { return __awaiter(void 0, void 0, void 0, function () {
     var data;
@@ -115,18 +126,24 @@ var getEventLive = function (event) { return __awaiter(void 0, void 0, void 0, f
     });
 }); };
 var getCachedEvent = function (id) { return __awaiter(void 0, void 0, void 0, function () {
-    var cached, events;
+    var events;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                cached = cache.get('events');
-                if (!(cached == undefined)) return [3 /*break*/, 2];
-                return [4 /*yield*/, loaders_1.bootStrapLoader.load('data')];
+            case 0: return [4 /*yield*/, loaders_1.bootStrapLoader.load('data')
+                // cache.set('events', events)
+            ];
             case 1:
                 events = (_a.sent()).events;
-                cache.set('events', events);
-                return [2 /*return*/, events.find(function (g) { return g.id == id; })];
-            case 2: return [2 /*return*/, cached.find(function (g) { return g.id == id; })];
+                // cache.set('events', events)
+                return [2 /*return*/, events.find(function (g) { return g.id == id; })
+                    // let cached = cache.get('events') as any[]
+                    // if (cached == undefined) {
+                    //     let { events } = await bootStrapLoader.load('data')
+                    //     cache.set('events', events)
+                    //     return events.find((g) => g.id == id)
+                    // }
+                    // return cached.find((g) => g.id == id)
+                ];
         }
     });
 }); };
@@ -136,26 +153,34 @@ var resolvers = {
             return getCachedEvent(args.event);
         },
         events: function () {
-            var cached = cache.get('events');
-            if (cached == undefined) {
-                return loaders_1.bootStrapLoader.load('data').then(function (json) {
-                    cache.set('events', json);
-                    return json;
-                });
-            }
-            return cached;
+            return loaders_1.bootStrapLoader.load('data').then(function (json) {
+                // cache.set('events', json)
+                return json;
+            });
+            // let cached = cache.get('events') as any[]
+            // if (cached == undefined) {
+            //     return bootStrapLoader.load('data').then((json) => {
+            //         cache.set('events', json)
+            //         return json
+            //     })
+            // }
+            // return cached
         },
         team: function (_, args) { return getTeam(args.teamId); },
         fixture: function (_, args) {
             var id = args.id;
-            var cached = cache.get('fixtures');
-            if (cached == undefined) {
-                loaders_1.FixturesLoader.load('data').then(function (json) {
-                    cache.set('fixtures', json);
-                    return json.find(function (f) { return f.id == id; });
-                });
-            }
-            return cached.find(function (f) { return f.id == id; });
+            loaders_1.FixturesLoader.load('data').then(function (json) {
+                // cache.set('fixtures', json)
+                return json.find(function (f) { return f.id == id; });
+            });
+            // let cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.find((f) => f.id == id)
+            //     })
+            // }
+            // return cached.find((f) => f.id == id)
         },
         player: function (_, args) {
             return args.playerId ? getPlayer(args.playerId) : getPlayerByName(args.playerName);
@@ -232,25 +257,33 @@ var resolvers = {
     Team: {
         players: function (ctx) {
             var teamId = ctx.teamId;
-            var cached = cache.get('players');
-            if (cache.get('players') == undefined) {
-                return loaders_1.bootStrapLoader.load('data').then(function (json) {
-                    cache.set('players', json.elements);
-                    return json.elements.filter(function (p) { return p.team == teamId; });
-                });
-            }
-            return cached.filter(function (p) { return p.team == teamId; });
+            return loaders_1.bootStrapLoader.load('data').then(function (json) {
+                // cache.set('players', json.elements)
+                return json.elements.filter(function (p) { return p.team == teamId; });
+            });
+            // let cached = cache.get('players') as any[]
+            // if (cache.get('players') == undefined) {
+            //     return bootStrapLoader.load('data').then((json) => {
+            //         cache.set('players', json.elements)
+            //         return json.elements.filter((p) => p.team == teamId)
+            //     })
+            // }
+            // return cached.filter((p) => p.team == teamId)
         },
         fixtures: function (ctx) {
             var id = ctx.id;
-            var cached = cache.get('fixtures');
-            if (cached == undefined) {
-                loaders_1.FixturesLoader.load('data').then(function (json) {
-                    cache.set('fixtures', json);
-                    return json.filter(function (x) { return x.team_a == id || x.team_a == id; });
-                });
-            }
-            return cached.filter(function (x) { return x.team_a == id || x.team_h == id; });
+            loaders_1.FixturesLoader.load('data').then(function (json) {
+                // cache.set('fixtures', json)
+                return json.filter(function (x) { return x.team_a == id || x.team_a == id; });
+            });
+            // let cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.filter((x) => x.team_a == id || x.team_a == id)
+            //     })
+            // }
+            // return cached.filter((x) => x.team_a == id || x.team_h == id)
         },
     },
     Fixture: {
@@ -299,14 +332,18 @@ var resolvers = {
         },
         fixtures: function (ctx) {
             var id = ctx.id;
-            var cached = cache.get('fixtures');
-            if (cached == undefined) {
-                loaders_1.FixturesLoader.load('data').then(function (json) {
-                    cache.set('fixtures', json);
-                    return json.filter(function (f) { return f.event == id; });
-                });
-            }
-            return cached.filter(function (f) { return f.event == id; });
+            loaders_1.FixturesLoader.load('data').then(function (json) {
+                // cache.set('fixtures', json)
+                return json.filter(function (f) { return f.event == id; });
+            });
+            // const cached = cache.get('fixtures') as any[]
+            // if (cached == undefined) {
+            //     FixturesLoader.load('data').then((json) => {
+            //         cache.set('fixtures', json)
+            //         return json.filter((f) => f.event == id)
+            //     })
+            // }
+            // return cached.filter((f) => f.event == id)
         },
         deadline_time: function (ctx) {
             return new vdate_1.default(new Date(ctx.deadline_time).getTime()).format('YYYY-MM-DD HH:mm:ss');

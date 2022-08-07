@@ -2,7 +2,7 @@ import DataLoader from 'dataloader'
 import fetch from 'node-fetch'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache()
+// const cache = new NodeCache()
 const baseURI = 'https://fantasy.premierleague.com/api'
 
 const request = async (url) => {
@@ -18,7 +18,7 @@ const request = async (url) => {
         })) as any
 
         let data = await response.json()
-        cache.set(url, data)
+        // cache.set(url, data)
         
         return data
     // } else {
