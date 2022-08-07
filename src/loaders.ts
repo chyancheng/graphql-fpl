@@ -6,8 +6,8 @@ const cache = new NodeCache()
 const baseURI = 'https://fantasy.premierleague.com/api'
 
 const request = async (url) => {
-    let cachedData = cache.get(url)
-    if (cachedData == undefined) {
+    // let cachedData = cache.get(url)
+    // if (cachedData == undefined) {
         console.info(`request: ${url}`)
 
         let response = (await fetch(url, {
@@ -21,11 +21,11 @@ const request = async (url) => {
         cache.set(url, data)
         
         return data
-    } else {
-        return new Promise((resolve) => {
-            resolve(cachedData)
-        })
-    }
+    // } else {
+    //     return new Promise((resolve) => {
+    //         resolve(cachedData)
+    //     })
+    // }
 }
 
 export const bootStrapLoader = new DataLoader(async (keys) => {

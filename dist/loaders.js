@@ -46,12 +46,12 @@ var node_cache_1 = __importDefault(require("node-cache"));
 var cache = new node_cache_1.default();
 var baseURI = 'https://fantasy.premierleague.com/api';
 var request = function (url) { return __awaiter(void 0, void 0, void 0, function () {
-    var cachedData, response, data;
+    var response, data;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                cachedData = cache.get(url);
-                if (!(cachedData == undefined)) return [3 /*break*/, 3];
+                // let cachedData = cache.get(url)
+                // if (cachedData == undefined) {
                 console.info("request: ".concat(url));
                 return [4 /*yield*/, (0, node_fetch_1.default)(url, {
                         headers: {
@@ -65,10 +65,13 @@ var request = function (url) { return __awaiter(void 0, void 0, void 0, function
             case 2:
                 data = _a.sent();
                 cache.set(url, data);
-                return [2 /*return*/, data];
-            case 3: return [2 /*return*/, new Promise(function (resolve) {
-                    resolve(cachedData);
-                })];
+                return [2 /*return*/, data
+                    // } else {
+                    //     return new Promise((resolve) => {
+                    //         resolve(cachedData)
+                    //     })
+                    // }
+                ];
         }
     });
 }); };
