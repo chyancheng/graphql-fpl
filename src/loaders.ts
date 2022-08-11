@@ -1,6 +1,5 @@
 import DataLoader from 'dataloader'
 import fetch from 'node-fetch'
-import NodeCache from 'node-cache'
 
 // const cache = new NodeCache()
 const baseURI = 'https://fantasy.premierleague.com/api'

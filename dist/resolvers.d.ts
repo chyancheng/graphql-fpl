@@ -7,7 +7,7 @@ declare const resolvers: {
         player: (_: any, args: any) => Promise<any>;
         entry: (_: any, args: any) => Promise<any>;
         entryHistory: (_: any, args: any) => Promise<any>;
-        live: (_: any, args: any) => Promise<any>;
+        live: (ctx: any, args: any) => Promise<any>;
         picks: (_: any, args: any) => Promise<any>;
         playerSummary: (_: any, args: any) => Promise<any>;
         transfers: (_: any, args: any) => Promise<any>;
@@ -45,41 +45,11 @@ declare const resolvers: {
         live: (ctx: any, args: any) => Promise<any>;
     };
     Event: {
-        most_selected: (ctx: any) => {
-            event: any;
-            then<TResult1 = any, TResult2 = never>(onfulfilled?: (value: any) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>;
-            catch<TResult = never>(onrejected?: (reason: any) => TResult | PromiseLike<TResult>): Promise<any>;
-            finally(onfinally?: () => void): Promise<any>;
-            [Symbol.toStringTag]: string;
-        };
-        most_transferred_in: (ctx: any) => {
-            event: any;
-            then<TResult1 = any, TResult2 = never>(onfulfilled?: (value: any) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>;
-            catch<TResult = never>(onrejected?: (reason: any) => TResult | PromiseLike<TResult>): Promise<any>;
-            finally(onfinally?: () => void): Promise<any>;
-            [Symbol.toStringTag]: string;
-        };
-        top_element: (ctx: any) => {
-            event: any;
-            then<TResult1 = any, TResult2 = never>(onfulfilled?: (value: any) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>;
-            catch<TResult = never>(onrejected?: (reason: any) => TResult | PromiseLike<TResult>): Promise<any>;
-            finally(onfinally?: () => void): Promise<any>;
-            [Symbol.toStringTag]: string;
-        };
-        most_captained: (ctx: any) => {
-            event: any;
-            then<TResult1 = any, TResult2 = never>(onfulfilled?: (value: any) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>;
-            catch<TResult = never>(onrejected?: (reason: any) => TResult | PromiseLike<TResult>): Promise<any>;
-            finally(onfinally?: () => void): Promise<any>;
-            [Symbol.toStringTag]: string;
-        };
-        most_vice_captained: (ctx: any) => {
-            event: any;
-            then<TResult1 = any, TResult2 = never>(onfulfilled?: (value: any) => TResult1 | PromiseLike<TResult1>, onrejected?: (reason: any) => TResult2 | PromiseLike<TResult2>): Promise<TResult1 | TResult2>;
-            catch<TResult = never>(onrejected?: (reason: any) => TResult | PromiseLike<TResult>): Promise<any>;
-            finally(onfinally?: () => void): Promise<any>;
-            [Symbol.toStringTag]: string;
-        };
+        most_selected: (ctx: any) => Promise<any>;
+        most_transferred_in: (ctx: any) => Promise<any>;
+        top_element: (ctx: any) => Promise<any>;
+        most_captained: (ctx: any) => Promise<any>;
+        most_vice_captained: (ctx: any) => Promise<any>;
         fixtures: (ctx: any) => void;
         deadline_time: (ctx: any) => any;
     };
@@ -99,7 +69,7 @@ declare const resolvers: {
         fixture: (ctx: any) => Promise<any>;
     };
     Pick: {
-        player: (ctx: any) => Promise<any>;
+        player: (ctx: any, args: any) => Promise<any>;
     };
     PlayerSummary: {
         fixtures: (ctx: any) => Promise<any>;

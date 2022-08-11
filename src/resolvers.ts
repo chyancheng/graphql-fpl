@@ -1,4 +1,3 @@
-import NodeCache from 'node-cache'
 import VDate from './util/vdate'
 
 import {
@@ -43,11 +42,9 @@ const getTeamShortName = async (id) => {
     return await team.short_name
 }
 
-const getPlayer = (id) => {
-    return bootStrapLoader.load('data').then((json) => {
-        // cache.set('players', json.elements)
-        return json.elements.find((p) => p.id == id)
-    })
+const getPlayer = async (id) => {
+    let json = await bootStrapLoader.load('data')
+    return json.elements.find((p) => p.id == id)
 
     // let cached = cache.get('players') as any[]
     // if (cached == undefined) {
@@ -146,13 +143,15 @@ const resolvers = {
             return { ...data, entryId: args.entryId }
         },
 
-        live: async (_, args) => {
-            let data = await EventLiveLoader.load(args.event)
+        live: async (ctx, args) => {
+            let event = args.event
+            let data = await EventLiveLoader.load(event)
             return data.elements.find((el) => el.id == args.playerId)
         },
 
         picks: async (_, args) => {
-            return await EntryPicksLoader.load([args.entryId, args.event])
+            let data = EntryPicksLoader.load([args.entryId, args.event])
+            return {...data, event: args.event }
         },
 
         playerSummary: async (_, args) => {
@@ -223,6 +222,9 @@ const resolvers = {
     Player: {
         team: (ctx) => getTeam(ctx.team),
         live: async (ctx, args) => {
+            if (ctx.live) {
+                return ctx.live
+            }
             let event = args?.event ? args.event : ctx.event
             let elements = await getEventLive(event)
             return elements.find((el) => el.id == ctx.id)
@@ -230,20 +232,25 @@ const resolvers = {
     },
 
     Event: {
-        most_selected: (ctx) => {
-            return { ...getPlayer(ctx.most_selected), event: ctx.id }
+        most_selected: async (ctx) => {
+            let playerInfo = await getPlayer(ctx.most_selected)
+            return { ...playerInfo, event: ctx.id }
         },
-        most_transferred_in: (ctx) => {
-            return { ...getPlayer(ctx.most_transferred_in), event: ctx.id }
+        most_transferred_in: async (ctx) => {
+            let playerInfo = await getPlayer(ctx.most_transferred_in)
+            return { ...playerInfo, event: ctx.id }
         },
-        top_element: (ctx) => {
-            return { ...getPlayer(ctx.top_element), event: ctx.id }
+        top_element: async (ctx) => {
+            let playerInfo = await getPlayer(ctx.top_element)
+            return { ...playerInfo, event: ctx.id }
         },
-        most_captained: (ctx) => {
-            return { ...getPlayer(ctx.most_captained), event: ctx.id }
+        most_captained: async (ctx) => {
+            let playerInfo = await getPlayer(ctx.most_captained)
+            return { ...playerInfo, event: ctx.id }
         },
-        most_vice_captained: (ctx) => {
-            return { ...getPlayer(ctx.most_vice_captained), event: ctx.id }
+        most_vice_captained: async (ctx) => {
+            let playerInfo = await getPlayer(ctx.most_vice_captained)
+            return { ...playerInfo, event: ctx.id }
         },
         fixtures: (ctx) => {
             const { id } = ctx
@@ -269,7 +276,21 @@ const resolvers = {
         current: (ctx) => {
             return ctx.current.map(async (item) => {
                 let picks = await EntryPicksLoader.load([ctx.entryId, item.event])
-                return { ...item, entryId: ctx.entryId, picks }
+                let attachEventPicks = picks.picks.map(data => {
+                    return {
+                        ...data,
+                        event: item.event
+                    }
+                })
+                return { 
+                    ...item, 
+                    entryId: ctx.entryId, 
+                    event: item.event, 
+                    picks: {
+                        ...picks,
+                        picks: attachEventPicks
+                    }
+                }
             })
         },
         chips: (ctx) => {
@@ -295,7 +316,9 @@ const resolvers = {
     },
 
     Live: {
-        player: (ctx) => getPlayer(ctx.id),
+        player: (ctx) => {
+            return getPlayer(ctx.id)
+        },
         explain: (ctx) => ctx.explain[0],
     },
 
@@ -306,7 +329,17 @@ const resolvers = {
     },
 
     Pick: {
-        player: (ctx) => getPlayer(ctx.element),
+        player: async (ctx, args) => {
+            let event = args.event || ctx.event
+            let playerInfo = await getPlayer(ctx.element)
+            let elements = event ? await getEventLive(event) : []
+            let liveInfo = elements.find((el) => el.id == ctx.element)
+
+            return { 
+                ...playerInfo,
+                live: liveInfo
+            }
+        },
     },
 
     PlayerSummary: {
